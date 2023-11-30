@@ -9,9 +9,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.bangkit.hijalearn.navigation.Screen
+import com.bangkit.hijalearn.screen.login.LoginScreen
+import com.bangkit.hijalearn.screen.login.LoginState
 import com.bangkit.hijalearn.screen.welcome.WelcomeScreen
 import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
@@ -29,10 +38,51 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    WelcomeScreen(onClickLogin = { /*TODO*/ }) {
-                        
-                    }
+                    WelcomeApp()
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun WelcomeApp(
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController()
+) {
+    val context = LocalContext.current
+    val loginState = remember {LoginState()}
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Welcome.route
+    ) {
+        composable(Screen.Welcome.route) {
+            WelcomeScreen(
+                onClickLogin = {
+                    navController.navigate(Screen.Login.route)
+                },
+                onClickRegister = {
+                    navController.navigate(Screen.Register.route)
+                }
+            )
+        }
+        composable(Screen.Login.route) {
+            loginState.apply {
+                LoginScreen(
+                    email = email,
+                    password = password,
+                    isPasswordVisible = isPasswordVisible,
+                    onValueEmailChange = {
+                        onValueEmailChange(it)
+                    },
+                    onValuePasswordChange = {
+                        onValuePasswordChange(it)
+                    },
+                    onClickTrailingIcon = { onClickTrailingIcon() },
+                    onClickRegister = {
+                        navController.navigate(Screen.Register.route)
+                    },
+                    onClickLogin = { /*TODO*/ })
             }
         }
     }
