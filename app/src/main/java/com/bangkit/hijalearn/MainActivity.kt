@@ -21,6 +21,8 @@ import androidx.navigation.compose.rememberNavController
 import com.bangkit.hijalearn.navigation.Screen
 import com.bangkit.hijalearn.screen.login.LoginScreen
 import com.bangkit.hijalearn.screen.login.LoginState
+import com.bangkit.hijalearn.screen.register.RegisterScreen
+import com.bangkit.hijalearn.screen.register.RegisterState
 import com.bangkit.hijalearn.screen.welcome.WelcomeScreen
 import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
@@ -51,7 +53,8 @@ fun WelcomeApp(
     navController: NavHostController = rememberNavController()
 ) {
     val context = LocalContext.current
-    val loginState = remember {LoginState()}
+    val loginState = remember { LoginState() }
+    val registerState = remember { RegisterState()}
     NavHost(
         navController = navController,
         startDestination = Screen.Welcome.route
@@ -83,6 +86,21 @@ fun WelcomeApp(
                         navController.navigate(Screen.Register.route)
                     },
                     onClickLogin = { /*TODO*/ })
+            }
+        }
+        composable(Screen.Register.route) {
+            registerState.apply {
+                RegisterScreen(
+                    username = username,
+                    email = email,
+                    password = password,
+                    isPasswordVisible = isPasswordVisible,
+                    onValueUsernameChange = { onValueUsernameChange(it) },
+                    onValueEmailChange = { onValueEmailChange(it) },
+                    onValuePasswordChange = { onValuePasswordChange(it) },
+                    onClickTrailingIcon = { onClickTrailingIcon() },
+                    onClickRegister = { /*TODO*/ },
+                    onClickLogin = { navController.navigate(Screen.Login.route) })
             }
         }
     }
