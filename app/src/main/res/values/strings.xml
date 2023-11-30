@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">HijaLearn</string>
+    <string name="login">Masuk</string>
+    <string name="register">Daftar</string>
+    <string name="title_welcome">Selamat datang di Aplikasi HijaLearn</string>
+    <string name="desc_welcome">Apakah sudah siap memulai petualangan belajar membaca huruf hijaiyah dan mengarungi perjalanan menuju pemahaman yang lebih dalam terhadap Al-Qur\'an?</string>
 </resources>
