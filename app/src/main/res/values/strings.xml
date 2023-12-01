@@ -9,5 +9,8 @@
     <string name="password">Password</string>
     <string name="forgot_password">Lupa Password?</string>
     <string name="already_have_account">Sudah punya akun?</string>
+    <string name="profile">Profile</string>
+    <string name="list_modules">Daftar Modul</string>
+    <string name="view_all">Lihat Semua</string>
 
 </resources>

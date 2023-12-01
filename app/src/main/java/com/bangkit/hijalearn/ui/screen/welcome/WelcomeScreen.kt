@@ -1,4 +1,4 @@
-package com.bangkit.hijalearn.screen.welcome
+package com.bangkit.hijalearn.ui.screen.welcome
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image

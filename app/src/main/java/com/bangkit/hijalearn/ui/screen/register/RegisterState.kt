@@ -1,4 +1,4 @@
-package com.bangkit.hijalearn.screen.register
+package com.bangkit.hijalearn.ui.screen.register
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

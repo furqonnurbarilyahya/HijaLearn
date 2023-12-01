@@ -1,4 +1,4 @@
-package com.bangkit.hijalearn.screen.login
+package com.bangkit.hijalearn.ui.screen.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement

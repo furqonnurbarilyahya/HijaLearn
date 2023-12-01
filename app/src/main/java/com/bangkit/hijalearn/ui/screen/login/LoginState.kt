@@ -1,4 +1,4 @@
-package com.bangkit.hijalearn.screen.login
+package com.bangkit.hijalearn.ui.screen.login
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
