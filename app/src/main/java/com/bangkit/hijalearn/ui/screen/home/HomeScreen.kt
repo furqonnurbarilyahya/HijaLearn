@@ -58,6 +58,7 @@ fun HomeScreen () {
     Column (
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface)
             .verticalScroll(rememberScrollState())
     ) {
         Card (
@@ -71,11 +72,13 @@ fun HomeScreen () {
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 15.dp, start = 10.dp, end = 10.dp),
+                        .padding(top = 16.dp, start = 16.dp, end = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
-                        modifier = Modifier,
+                        modifier = Modifier
+                            .height(45.dp)
+                            .width(45.dp),
                         painter = painterResource(R.drawable.icon_category_espresso),
                         contentDescription = null,
                     )
@@ -91,12 +94,12 @@ fun HomeScreen () {
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    modifier = Modifier.padding(horizontal = 10.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp),
                     text = "Assalamu'alaykum Username"
                 )
                 Spacer(modifier = Modifier.height(7.dp))
                 Text(
-                    modifier = Modifier.padding(horizontal = 10.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp),
                     text = "Ayo mulai perjalanan Belajarmu",
                     fontWeight = SemiBold,
                     fontSize = 20.sp
@@ -111,9 +114,12 @@ fun HomeScreen () {
                 .padding(horizontal = 10.dp)
                 .fillMaxWidth()
                 .height(150.dp),
-//            colors = CardDefaults.cardColors(
-//                containerColor = MaterialTheme.colorScheme.background
-//            )
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 10.dp
+            )
         ) {
             Column (verticalArrangement = Arrangement.Center) {
                 Row (

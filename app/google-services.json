@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "407033689194",
+    "project_id": "festive-antenna-402105",
+    "storage_bucket": "festive-antenna-402105.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:407033689194:android:9b40d354626a3108950613",
+        "android_client_info": {
+          "package_name": "com.bangkit.hijalearn"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0UI6tuXN7pXCL85IUsJd9JKqlb2HAncs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

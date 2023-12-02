@@ -1,6 +1,7 @@
 package com.bangkit.hijalearn
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
@@ -32,6 +33,7 @@ import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 class MainActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("TES","Main")
         super.onCreate(savedInstanceState)
         setContent {
             HijaLearnTheme {

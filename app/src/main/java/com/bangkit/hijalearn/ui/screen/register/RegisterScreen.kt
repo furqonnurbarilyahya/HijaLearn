@@ -1,8 +1,10 @@
 package com.bangkit.hijalearn.ui.screen.register
 
+import android.content.Context
+import android.view.View
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -24,6 +27,7 @@ import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,10 +36,20 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,8 +59,12 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 import com.bangkit.hijalearn.R
+import com.bangkit.hijalearn.ViewModelFactory
+import com.bangkit.hijalearn.data.Result
+import com.bangkit.hijalearn.di.Injection
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,19 +77,53 @@ fun RegisterScreen(
     onValueEmailChange: (String) -> Unit,
     onValuePasswordChange: (String) -> Unit,
     onClickTrailingIcon: () -> Unit,
-    onClickRegister: () -> Unit,
+    resetState: () -> Unit,
     onClickLogin: () -> Unit,
+    context: Context,
+    viewModel: RegisterViewModel = viewModel(
+        factory = ViewModelFactory(Injection.provideWelcomeRepository(context))
+    ),
     modifier: Modifier = Modifier
-
 ) {
+    val registerResult by viewModel.registerResult.collectAsState()
+    var isLoading by remember {
+        mutableStateOf(false)
+    }
+
+    when (val state = registerResult) {
+        is Result.Success -> {
+            Toast.makeText(context, "Register success", Toast.LENGTH_LONG).show()
+            viewModel.resetLoading()
+            resetState()
+            onClickLogin()
+        }
+        is Result.Error -> {
+            state.error.getContentIfNotHandled()?.let {
+                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            }
+            viewModel.resetLoading()
+        }
+        is Result.Loading -> {
+            isLoading = state.isLoading
+        }
+    }
+
     Column (
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .paint(
+                painter = painterResource(id = R.drawable.welcome_background),
+                contentScale = ContentScale.FillBounds
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(30.dp))
         Image(
             painter = painterResource(R.drawable.logo) ,
-            contentDescription = null
+            contentDescription = "Logo",
+            modifier = Modifier
+                .width(220.dp)
+                .height(186.dp)
         )
         Spacer(modifier = Modifier.height(40.dp))
         Text(
@@ -137,15 +189,38 @@ fun RegisterScreen(
         )
         Spacer(modifier = Modifier.height(15.dp))
         Button(
-            onClick = onClickRegister,
+            onClick = {
+                viewModel.register(email, password, username)
+            },
             modifier = Modifier
                 .fillMaxWidth()
+                .height(40.dp)
                 .padding(horizontal = 28.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary
+            ),
+            enabled = !isLoading,
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 10.dp
             )
         ) {
-            Text(stringResource(R.string.register))
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(35.dp)
+                            .padding(end = 8.dp),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Text(
+                    text = if (isLoading) "Sedang daftar.." else "Register"
+                )
+            }
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -178,7 +253,8 @@ fun RegisterScreenPreview() {
             onValuePasswordChange = {},
             isPasswordVisible = false,
             onClickTrailingIcon = {},
-            onClickRegister = {}
+            resetState = {},
+            context = LocalContext.current
         )
     }
 }
