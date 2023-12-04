@@ -48,8 +48,8 @@ object ApiConfig {
 
 class AuthInterceptor(private val context: Context): Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val userPreference = UserPreference.getInstance(context.dataStore)
-        val user = runBlocking { userPreference.getSession().first() }
+        val userPref = UserPreference.getInstance(context.dataStore)
+        val user = runBlocking { userPref.getSession().first() }
         val bearerToken = "Bearer ${user.token}"
 
         val req = chain.request()

@@ -33,7 +33,7 @@ import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 class WelcomeActivity : ComponentActivity() {
 
     private val splashViewModel: SplashViewModel by viewModels {
-        ViewModelFactory(Injection.provideWelcomeRepository(this))
+        ViewModelFactory(Injection.provideWelcomeRepository(this),Injection.provideMainRepository(this))
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -69,8 +69,7 @@ fun WelcomeApp(
     navController: NavHostController = rememberNavController()
 ) {
     val context = LocalContext.current
-    val loginState = remember { LoginState() }
-    val registerState = remember { RegisterState() }
+
     NavHost(
         navController = navController,
         startDestination = Screen.Welcome.route
@@ -86,52 +85,26 @@ fun WelcomeApp(
             )
         }
         composable(Screen.Login.route) {
-            loginState.apply {
-                LoginScreen(
-                    email = email,
-                    password = password,
-                    isPasswordVisible = isPasswordVisible,
-                    onValueEmailChange = {
-                        onValueEmailChange(it)
-                    },
-                    onValuePasswordChange = {
-                        onValuePasswordChange(it)
-                    },
-                    onClickTrailingIcon = { onClickTrailingIcon() },
-                    onClickRegister = {
-                        navController.navigate(Screen.Register.route) {
-                            popUpTo(Screen.Welcome.route)
-                        }
-                    },
-                    moveActivity = moveActivity,
-                    context = context
-                )
-            }
+            LoginScreen(
+                onClickRegister = {
+                    navController.navigate(Screen.Register.route) {
+                        popUpTo(Screen.Welcome.route)
+                    }
+                },
+                moveActivity = moveActivity,
+                context = context
+            )
+
         }
         composable(Screen.Register.route) {
-            registerState.apply {
-                RegisterScreen(
-                    username = username,
-                    email = email,
-                    password = password,
-                    isPasswordVisible = isPasswordVisible,
-                    onValueUsernameChange = { onValueUsernameChange(it) },
-                    onValueEmailChange = { onValueEmailChange(it) },
-                    onValuePasswordChange = { onValuePasswordChange(it) },
-                    onClickTrailingIcon = { onClickTrailingIcon() },
-                    resetState = {
-                        username = ""
-                        email = ""
-                        password = ""
-                    },
-                    onClickLogin = {
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(Screen.Welcome.route)
-                        }
-                    },
-                    context = context
-                )
-            }
+            RegisterScreen(
+                onClickLogin = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Welcome.route)
+                    }
+                },
+                context = context
+            )
         }
     }
 }

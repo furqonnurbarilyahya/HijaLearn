@@ -2,20 +2,24 @@ package com.bangkit.hijalearn
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.bangkit.hijalearn.data.remote.repository.MainRepository
 import com.bangkit.hijalearn.data.remote.repository.WelcomeRepository
+import com.bangkit.hijalearn.ui.screen.home.HomeViewModel
 import com.bangkit.hijalearn.ui.screen.login.LoginViewModel
 import com.bangkit.hijalearn.ui.screen.register.RegisterViewModel
 
-class ViewModelFactory(private val repository: WelcomeRepository): ViewModelProvider.NewInstanceFactory() {
+class ViewModelFactory(private val welcomRepository: WelcomeRepository,private val mainRepository: MainRepository): ViewModelProvider.NewInstanceFactory() {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RegisterViewModel::class.java)) {
-            return RegisterViewModel(repository) as T
+            return RegisterViewModel(welcomRepository) as T
         } else if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-            return LoginViewModel(repository) as T
+            return LoginViewModel(welcomRepository) as T
         } else if (modelClass.isAssignableFrom(SplashViewModel::class.java)) {
-            return SplashViewModel(repository) as T
+            return SplashViewModel(welcomRepository) as T
+        } else if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
+            return HomeViewModel(mainRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
     }

@@ -2,6 +2,7 @@ package com.bangkit.hijalearn.ui.screen.login
 
 import android.content.Context
 import android.content.Intent
+import android.text.TextUtils
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -62,43 +63,38 @@ import com.bangkit.hijalearn.R
 import com.bangkit.hijalearn.ViewModelFactory
 import com.bangkit.hijalearn.data.Result
 import com.bangkit.hijalearn.di.Injection
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    email: String,
-    password: String,
-    isPasswordVisible: Boolean,
-    onValueEmailChange: (String) -> Unit,
-    onValuePasswordChange: (String) -> Unit,
-    onClickTrailingIcon: () -> Unit,
     onClickRegister: () -> Unit,
     moveActivity: () -> Unit,
     context: Context,
     viewModel: LoginViewModel = viewModel(
-        factory = ViewModelFactory(Injection.provideWelcomeRepository(context))
+        factory = ViewModelFactory(Injection.provideWelcomeRepository(context),Injection.provideMainRepository(context))
     ),
     modifier: Modifier = Modifier
 ) {
     val loginResult by viewModel.result.collectAsState()
-    var isLoading by remember {
-        mutableStateOf(false)
-    }
     when (val state = loginResult) {
         is Result.Success -> {
             viewModel.saveSession(state.data)
-            Toast.makeText(context, "Login success token"+state.data.token, Toast.LENGTH_LONG).show()
             viewModel.resetLoading()
             moveActivity()
         }
         is Result.Error -> {
             state.error.getContentIfNotHandled()?.let {
+                if (it == "Invalid User") {
+                    viewModel.loginInvalidUser = true
+                }
                 Toast.makeText(context, it, Toast.LENGTH_LONG).show()
             }
             viewModel.resetLoading()
         }
         is Result.Loading -> {
-            isLoading = state.isLoading
+            viewModel.isLoading = state.isLoading
         }
     }
 
@@ -127,8 +123,8 @@ fun LoginScreen(
         )
         Spacer(modifier = Modifier.height(15.dp))
         OutlinedTextField(
-            value = email,
-            onValueChange = onValueEmailChange,
+            value = viewModel.email,
+            onValueChange = viewModel::onValueEmailChange,
             label = { Text(text = stringResource(R.string.email)) },
             leadingIcon = {
                 Icon(
@@ -137,14 +133,24 @@ fun LoginScreen(
                 )
             },
             singleLine = true,
+            isError = viewModel.isEmailEmpty || viewModel.isEmailNotValid || viewModel.loginInvalidUser,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 28.dp)
+                .padding(horizontal = 28.dp),
+            supportingText = {
+                if (viewModel.isEmailEmpty) {
+                    Text(text = "Email tidak boleh kosong", color = Color.Red)
+                } else if (viewModel.isEmailNotValid){
+                    Text(text = "Email tidak valid", color = Color.Red)
+                } else if (viewModel.loginInvalidUser) {
+                    Text(text = "Email atau Password salah", color = Color.Red)
+                }
+            }
         )
         Spacer(modifier = Modifier.padding(bottom = 20.dp))
         OutlinedTextField(
-            value = password,
-            onValueChange = onValuePasswordChange,
+            value = viewModel.password,
+            onValueChange = viewModel::onValuePasswordChange,
             label = { Text(text = stringResource(R.string.password)) },
             leadingIcon = {
                 Icon(
@@ -153,14 +159,22 @@ fun LoginScreen(
                 )
             },
             singleLine = true,
-            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            isError = viewModel.isPasswordEmpty || viewModel.loginInvalidUser,
+            visualTransformation = if (viewModel.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 28.dp),
             trailingIcon = {
-                val icon = if (isPasswordVisible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility
-                IconButton(onClick = onClickTrailingIcon) {
+                val icon = if (viewModel.isPasswordVisible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility
+                IconButton(onClick = viewModel::onClickTrailingIcon) {
                     Icon(imageVector = icon, contentDescription = null,)
+                }
+            },
+            supportingText = {
+                if (viewModel.isPasswordEmpty) {
+                    Text(text = "Password tidak boleh kosong", color = Color.Red)
+                } else if (viewModel.loginInvalidUser) {
+                    Text(text = "Email atau Password salah", color = Color.Red)
                 }
             },
         )
@@ -179,7 +193,15 @@ fun LoginScreen(
         Spacer(modifier = Modifier.padding(bottom = 15.dp))
         Button(
             onClick = {
-                    viewModel.login(email, password)
+                    checkInputValid(viewModel)
+                    viewModel.loginInvalidUser = false
+                    if (viewModel.isEmailEmpty || viewModel.isEmailNotValid || viewModel.isPasswordEmpty) {
+                        // Do nothing
+                        viewModel.resetLoading()
+                    } else {
+                        viewModel.login(viewModel.email, viewModel.password)
+                    }
+
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -188,7 +210,7 @@ fun LoginScreen(
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary
             ),
-            enabled = !isLoading,
+            enabled = !viewModel.isLoading,
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 10.dp
             )
@@ -198,7 +220,7 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (isLoading) {
+                if (viewModel.isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier
                             .size(35.dp)
@@ -207,7 +229,7 @@ fun LoginScreen(
                     )
                 }
                 Text(
-                    text = if (isLoading) "Sedang masuk.." else "Masuk"
+                    text = if (viewModel.isLoading) "Sedang masuk.." else "Masuk"
                 )
             }
         }
@@ -228,19 +250,22 @@ fun LoginScreen(
     }
 }
 
+fun checkInputValid(viewModel: LoginViewModel) {
+    viewModel.isEmailEmpty = viewModel.email == ""
+    viewModel.isPasswordEmpty = viewModel.password == ""
+    viewModel.isEmailNotValid = isEmailNotValid(viewModel.email)
+}
+fun isEmailNotValid(email: String): Boolean {
+    return !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+}
+
 @Composable
 @Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_3A)
 fun LoginScreenPreview() {
     MaterialTheme {
         LoginScreen(
-            email = "",
-            password = "",
-            moveActivity = {},
-            onValueEmailChange = {},
-            onValuePasswordChange = {},
-            isPasswordVisible = false,
-            onClickTrailingIcon = {},
             onClickRegister = {},
+            moveActivity = {},
             context = LocalContext.current
         )
     }

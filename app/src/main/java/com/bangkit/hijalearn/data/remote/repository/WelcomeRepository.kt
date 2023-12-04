@@ -13,6 +13,8 @@ import com.bangkit.hijalearn.util.Event
 import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,16 +28,6 @@ class WelcomeRepository(
     private val apiService: ApiService,
     private val userPreference: UserPreference
 ) {
-
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
-
-    private val _isRegisterSuccess = MutableLiveData<Event<String>>()
-    val isRegisterSuccess: LiveData<Event<String>> = _isRegisterSuccess
-
-    private val _isRegisterError = MutableLiveData<Event<String>>()
-    val isRegisterError: LiveData<Event<String>> = _isRegisterError
-
     private val _loginResult = MutableStateFlow<Result<User>>(Result.Loading(false))
     val loginResult: StateFlow<Result<User>> get() = _loginResult
 
@@ -87,7 +79,15 @@ class WelcomeRepository(
                         }
                 } else {
                     // If sign in fails, display a message to the user.
-                    _loginResult.value = Result.Error(Event("Terjadi kesalahan"))
+                    when  {
+                        task.exception is FirebaseAuthInvalidUserException ||
+                                task.exception is FirebaseAuthInvalidCredentialsException -> {
+                            _loginResult.value = Result.Error(Event("Invalid User"))
+                        }
+                        else -> {
+                            _loginResult.value = Result.Error(Event("Terjadi kesalahan"))
+                        }
+                    }
                 }
             }
     }

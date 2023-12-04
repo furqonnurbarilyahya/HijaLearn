@@ -65,37 +65,30 @@ import com.bangkit.hijalearn.R
 import com.bangkit.hijalearn.ViewModelFactory
 import com.bangkit.hijalearn.data.Result
 import com.bangkit.hijalearn.di.Injection
+import com.bangkit.hijalearn.ui.component.RegisterDialog
+import com.bangkit.hijalearn.ui.screen.login.LoginViewModel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
-    username: String,
-    email: String,
-    password: String,
-    isPasswordVisible: Boolean,
-    onValueUsernameChange: (String) -> Unit,
-    onValueEmailChange: (String) -> Unit,
-    onValuePasswordChange: (String) -> Unit,
-    onClickTrailingIcon: () -> Unit,
-    resetState: () -> Unit,
     onClickLogin: () -> Unit,
     context: Context,
     viewModel: RegisterViewModel = viewModel(
-        factory = ViewModelFactory(Injection.provideWelcomeRepository(context))
+        factory = ViewModelFactory(Injection.provideWelcomeRepository(context),Injection.provideMainRepository(context))
     ),
     modifier: Modifier = Modifier
 ) {
     val registerResult by viewModel.registerResult.collectAsState()
-    var isLoading by remember {
-        mutableStateOf(false)
+
+    if (viewModel.showDialog) {
+        RegisterDialog()
     }
 
     when (val state = registerResult) {
         is Result.Success -> {
-            Toast.makeText(context, "Register success", Toast.LENGTH_LONG).show()
             viewModel.resetLoading()
-            resetState()
-            onClickLogin()
+            viewModel.showSuccessDialog(onClickLogin)
         }
         is Result.Error -> {
             state.error.getContentIfNotHandled()?.let {
@@ -104,10 +97,9 @@ fun RegisterScreen(
             viewModel.resetLoading()
         }
         is Result.Loading -> {
-            isLoading = state.isLoading
+            viewModel.isLoading = state.isLoading
         }
     }
-
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -136,15 +128,21 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 28.dp),
-            value = username,
-            onValueChange = onValueUsernameChange,
+            value = viewModel.username,
+            onValueChange = viewModel::onValueUsernameChange,
             label = { Text(text = stringResource(R.string.username))},
+            isError = viewModel.isUsernameEmpty,
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Person,
                     tint = Color.Black,
                     contentDescription = null
                 )
+            },
+            supportingText = {
+                if (viewModel.isUsernameEmpty) {
+                    Text(text = "Username tidak boleh kosong", color = Color.Red)
+                }
             }
         )
         Spacer(modifier = Modifier.height(20.dp))
@@ -152,15 +150,23 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 28.dp),
-            value = email,
-            onValueChange = onValueEmailChange,
+            value = viewModel.email,
+            onValueChange = viewModel::onValueEmailChange,
             label = { Text(text = stringResource(R.string.email))},
+            isError = viewModel.isEmailEmpty || viewModel.isEmailNotValid,
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Email,
                     tint = Color.Black,
                     contentDescription = null
                 )
+            },
+            supportingText = {
+                if (viewModel.isEmailEmpty) {
+                    Text(text = "Email tidak boleh kosong", color = Color.Red)
+                } else if (viewModel.isEmailNotValid) {
+                    Text(text = "Email tidak valid", color = Color.Red)
+                }
             }
         )
         Spacer(modifier = Modifier.height(20.dp))
@@ -168,8 +174,8 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 28.dp),
-            value = password,
-            onValueChange = onValuePasswordChange,
+            value = viewModel.password,
+            onValueChange = viewModel::onValuePasswordChange,
             label = { Text(text = stringResource(R.string.password))},
             leadingIcon = {
                 Icon(
@@ -179,18 +185,32 @@ fun RegisterScreen(
                 )
             },
             singleLine = true,
-            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            visualTransformation = if (viewModel.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            isError = viewModel.isPasswordEmpty || viewModel.isPasswordNotValid,
             trailingIcon = {
-                val icon = if (isPasswordVisible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility
-                IconButton(onClick = onClickTrailingIcon) {
+                val icon = if (viewModel.isPasswordVisible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility
+                IconButton(onClick = viewModel::onClickTrailingIcon) {
                     Icon(imageVector = icon, contentDescription = null,)
                 }
             },
+            supportingText = {
+                if (viewModel.isPasswordEmpty) {
+                    Text(text = "Password tidak boleh kosong", color = Color.Red)
+                } else if (viewModel.isPasswordNotValid) {
+                    Text(text = "Panjang password harus lebih dari 5", color = Color.Red)
+                }
+            }
         )
         Spacer(modifier = Modifier.height(15.dp))
         Button(
             onClick = {
-                viewModel.register(email, password, username)
+                checkInputValid(viewModel)
+                if (viewModel.isUsernameEmpty || viewModel.isEmailEmpty || viewModel.isEmailNotValid || viewModel.isPasswordEmpty || viewModel.isPasswordNotValid) {
+                    // Do nothing
+                    viewModel.resetLoading()
+                } else {
+                    viewModel.register(viewModel.email, viewModel.password, viewModel.username)
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -199,7 +219,7 @@ fun RegisterScreen(
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary
             ),
-            enabled = !isLoading,
+            enabled = !viewModel.isLoading,
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 10.dp
             )
@@ -209,7 +229,7 @@ fun RegisterScreen(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (isLoading) {
+                if (viewModel.isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier
                             .size(35.dp)
@@ -218,7 +238,7 @@ fun RegisterScreen(
                     )
                 }
                 Text(
-                    text = if (isLoading) "Sedang daftar.." else "Register"
+                    text = if (viewModel.isLoading) "Sedang daftar.." else "Register"
                 )
             }
         }
@@ -239,21 +259,23 @@ fun RegisterScreen(
     }
 }
 
+fun checkInputValid(viewModel: RegisterViewModel) {
+    viewModel.isUsernameEmpty = viewModel.username == ""
+    viewModel.isEmailEmpty = viewModel.email == ""
+    viewModel.isPasswordEmpty = viewModel.password == ""
+    viewModel.isEmailNotValid = isEmailNotValid(viewModel.email)
+    viewModel.isPasswordNotValid = viewModel.password.length <= 5
+}
+fun isEmailNotValid(email: String): Boolean {
+    return !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+}
+
 @Preview(showSystemUi = true, showBackground = true, device = Devices.PIXEL_3A)
 @Composable
 fun RegisterScreenPreview() {
     HijaLearnTheme {
         RegisterScreen(
-            username = "",
-            email = "",
-            password = "",
             onClickLogin = {},
-            onValueUsernameChange = {},
-            onValueEmailChange = {},
-            onValuePasswordChange = {},
-            isPasswordVisible = false,
-            onClickTrailingIcon = {},
-            resetState = {},
             context = LocalContext.current
         )
     }

@@ -1,5 +1,6 @@
 package com.bangkit.hijalearn.ui.screen.home
 
+import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -9,12 +10,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -32,10 +35,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
@@ -46,15 +51,25 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bangkit.hijalearn.R
+import com.bangkit.hijalearn.ViewModelFactory
+import com.bangkit.hijalearn.di.Injection
 import com.bangkit.hijalearn.model.Module
+import com.bangkit.hijalearn.model.User
 import com.bangkit.hijalearn.model.dummyModule
 import com.bangkit.hijalearn.ui.component.ModuleRow
 import com.bangkit.hijalearn.ui.component.SectionText
 import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 @Composable
-fun HomeScreen () {
+fun HomeScreen (
+    context: Context,
+    viewModel: HomeViewModel = viewModel(
+        factory = ViewModelFactory(Injection.provideWelcomeRepository(context),Injection.provideMainRepository(context))
+    )
+) {
+    val user = viewModel.getSession().collectAsState(initial = User("","","","",false))
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -95,7 +110,7 @@ fun HomeScreen () {
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "Assalamu'alaykum Username"
+                    text = "Assalamu'alaykum " + user.value.username
                 )
                 Spacer(modifier = Modifier.height(7.dp))
                 Text(
@@ -113,7 +128,7 @@ fun HomeScreen () {
             modifier = Modifier
                 .padding(horizontal = 10.dp)
                 .fillMaxWidth()
-                .height(150.dp),
+                .height(200.dp),
             colors = CardDefaults.cardColors(
                 containerColor = Color.White
             ),
@@ -121,40 +136,50 @@ fun HomeScreen () {
                 defaultElevation = 10.dp
             )
         ) {
-            Column (verticalArrangement = Arrangement.Center) {
-                Row (
+            Row(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
                     modifier = Modifier
-                        .height(80.dp)
-                        .padding(vertical = 12.dp, horizontal = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .fillMaxHeight()
+                        .weight(0.6f)
+                        .padding(16.dp)
                 ) {
                     Text(
-                        text = "Modul 1 | ",
-                        fontSize = 18.sp,
-                        fontWeight = SemiBold,
-                        color = Color.Black
+                        text = "Modul 1",
+                        fontWeight = Bold,
+                        fontSize = 24.sp
                     )
                     Text(
                         text = "Belajar Huruf Hijaiyah",
-                        fontSize = 18.sp,
-                        color = Color.Black
+                        fontWeight = SemiBold,
+                        fontSize = 16.sp
                     )
-                    Spacer(modifier = Modifier.width(30.dp))
-                    Canvas(modifier = Modifier.size(50.dp), onDraw = {
-                        drawCircle(color = Color.Red)
-                    })
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Kamu akan belajar tentang pengenalan dan pengucapan huruf hijaiyah",
+                        fontSize = 16.sp
+                    )
                 }
-
+                Box(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .weight(0.4f)
+                ) {
+                    Canvas(modifier = Modifier.size(100.dp), onDraw = {
+                        drawCircle(color = Color.Green)
+                    })
+                    Text(
+                        text = "90%",
+                        color = Color.White,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                    )
+                }
             }
-            Divider(color = Color.Black, thickness = 0.5.dp)
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                text = "Kamu akan belajar tentang pengenalan dan pengucapan huruf hijaiyah.",
-                fontSize = 16.sp,
-                color = Color.Black
-            )
         }
         Spacer(modifier = Modifier.height(15.dp))
         Row (modifier = Modifier.fillMaxWidth()){
@@ -218,6 +243,6 @@ fun HomeScreenPreview(
 
 ) {
     HijaLearnTheme {
-        HomeScreen()
+        HomeScreen(LocalContext.current)
     }
 }
