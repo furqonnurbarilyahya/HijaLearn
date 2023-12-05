@@ -40,11 +40,26 @@ class LoginViewModel(private val repository: WelcomeRepository): ViewModel() {
         isPasswordVisible = !isPasswordVisible
     }
 
+    private fun isEmailNotValid(email: String): Boolean {
+        return !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+    private fun checkInputValid() {
+        isEmailEmpty = email == ""
+        isPasswordEmpty = password == ""
+        isEmailNotValid = isEmailNotValid(email)
+    }
 
-    fun login(email: String, password: String) {
-        viewModelScope.launch {
-            repository.login(email, password)
+    fun login() {
+        checkInputValid()
+        loginInvalidUser = false
+        if (isEmailEmpty || isEmailNotValid || isPasswordEmpty) {
+            resetLoading()
+        } else {
+            viewModelScope.launch {
+                repository.login(email, password)
+            }
         }
+
     }
 
     fun saveSession(user: User) {

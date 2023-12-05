@@ -40,8 +40,27 @@ class RegisterViewModel(private val repository: WelcomeRepository): ViewModel() 
     fun onClickTrailingIcon() {
         isPasswordVisible = !isPasswordVisible
     }
-    fun register(email: String, password: String, username: String) {
-        viewModelScope.launch { repository.register(email, password, username) }
+    private fun isEmailNotValid(email: String): Boolean {
+        return !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+    fun checkInputValid() {
+        isUsernameEmpty = username == ""
+        isEmailEmpty = email == ""
+        isPasswordEmpty = password == ""
+        isEmailNotValid = isEmailNotValid(email)
+        isPasswordNotValid = password.length <= 6
+    }
+    fun register() {
+        checkInputValid()
+        if (isUsernameEmpty || isEmailEmpty
+            || isEmailNotValid || isPasswordEmpty
+            || isPasswordNotValid
+        ) {
+            resetLoading()
+        } else {
+            viewModelScope.launch { repository.register(email, password, username) }
+        }
+
     }
 
     fun resetLoading() {

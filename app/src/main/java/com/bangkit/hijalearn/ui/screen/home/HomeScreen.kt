@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,17 +61,19 @@ import com.bangkit.hijalearn.di.Injection
 import com.bangkit.hijalearn.model.Module
 import com.bangkit.hijalearn.model.User
 import com.bangkit.hijalearn.model.dummyModule
-import com.bangkit.hijalearn.ui.component.ModuleRow
+import com.bangkit.hijalearn.ui.component.ModulItem
 import com.bangkit.hijalearn.ui.component.SectionText
 import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 @Composable
 fun HomeScreen (
     context: Context,
+    navigateToIntroduction: (Int) -> Unit,
     viewModel: HomeViewModel = viewModel(
         factory = ViewModelFactory(Injection.provideWelcomeRepository(context),Injection.provideMainRepository(context))
     )
 ) {
+    val listModule by viewModel.listModule.collectAsState()
     val user = viewModel.getSession().collectAsState(initial = User("","","","",false))
     Column (
         modifier = Modifier
@@ -193,48 +198,21 @@ fun HomeScreen (
             )
         }
         Spacer(modifier = Modifier.height(15.dp))
-        ModuleRow(dummyModule)
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            modifier = Modifier
+        ){
+            items(listModule, key = { it.title }) { module ->
+                ModulItem(
+                    module,
+                    modifier = Modifier.clickable {
+                        navigateToIntroduction(module.id)
+                    }
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(5.dp))
-//        Card (
-//            modifier = Modifier
-//                .padding(horizontal = 10.dp)
-//                .fillMaxWidth()
-//                .height(150.dp),
-//        ) {
-//            Column (verticalArrangement = Arrangement.Center) {
-//                Row (
-//                    modifier = Modifier
-//                        .height(80.dp)
-//                        .padding(vertical = 12.dp, horizontal = 10.dp),
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    Text(
-//                        text = "Modul 1 | ",
-//                        fontSize = 18.sp,
-//                        fontWeight = SemiBold,
-//                        color = Color.Black
-//                    )
-//                    Text(
-//                        text = "Belajar Huruf Hijaiyah",
-//                        fontSize = 18.sp,
-//                        color = Color.Black
-//                    )
-//                    Spacer(modifier = Modifier.width(30.dp))
-//                    Canvas(modifier = Modifier.size(50.dp), onDraw = {
-//                        drawCircle(color = Color.Red)
-//                    })
-//                }
-//
-//            }
-//            Divider(color = Color.Black, thickness = 0.5.dp)
-//            Text(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(10.dp),
-//                text = "Siswa akan belajar tentang pengenalan dan pengucapan huruf hijaiyah.",
-//                color = Color.Black
-//            )
-//        }
     }
 }
 @Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_3A)
@@ -243,6 +221,6 @@ fun HomeScreenPreview(
 
 ) {
     HijaLearnTheme {
-        HomeScreen(LocalContext.current)
+        HomeScreen(LocalContext.current, navigateToIntroduction = {})
     }
 }

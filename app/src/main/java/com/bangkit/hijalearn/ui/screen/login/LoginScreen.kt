@@ -88,8 +88,9 @@ fun LoginScreen(
             state.error.getContentIfNotHandled()?.let {
                 if (it == "Invalid User") {
                     viewModel.loginInvalidUser = true
+                } else {
+                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
                 }
-                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
             }
             viewModel.resetLoading()
         }
@@ -193,15 +194,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.padding(bottom = 15.dp))
         Button(
             onClick = {
-                    checkInputValid(viewModel)
-                    viewModel.loginInvalidUser = false
-                    if (viewModel.isEmailEmpty || viewModel.isEmailNotValid || viewModel.isPasswordEmpty) {
-                        // Do nothing
-                        viewModel.resetLoading()
-                    } else {
-                        viewModel.login(viewModel.email, viewModel.password)
-                    }
-
+                      viewModel.login()
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -250,14 +243,6 @@ fun LoginScreen(
     }
 }
 
-fun checkInputValid(viewModel: LoginViewModel) {
-    viewModel.isEmailEmpty = viewModel.email == ""
-    viewModel.isPasswordEmpty = viewModel.password == ""
-    viewModel.isEmailNotValid = isEmailNotValid(viewModel.email)
-}
-fun isEmailNotValid(email: String): Boolean {
-    return !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
-}
 
 @Composable
 @Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_3A)

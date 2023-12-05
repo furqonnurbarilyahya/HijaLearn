@@ -32,21 +32,7 @@ import com.bangkit.hijalearn.model.Module
 import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 
-@Composable
-fun ModuleRow(
-    listModule: List<Module>,
-    modifier: Modifier = Modifier
-) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        modifier = modifier
-    ){
-        items(listModule, key = { it.title }) { module ->
-            ModulItem(module)
-        }
-    }
-}
+
 @Composable
 fun ModulItem(
     module: Module,
@@ -93,7 +79,7 @@ fun ModulItem(
 fun ModulItemPreview() {
     HijaLearnTheme {
         ModulItem(
-            module = Module(R.drawable.banner, "Modul 1 | Huruf Hijaiyah", "Kamu akan belajar tentang pengenalan dan pengucapan huruf hijaiyah.")
+            module = Module(1,R.drawable.banner, "Modul 1 | Huruf Hijaiyah", "Kamu akan belajar tentang pengenalan dan pengucapan huruf hijaiyah.")
         )
     }
 }

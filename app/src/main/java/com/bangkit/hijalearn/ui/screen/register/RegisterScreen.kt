@@ -197,20 +197,14 @@ fun RegisterScreen(
                 if (viewModel.isPasswordEmpty) {
                     Text(text = "Password tidak boleh kosong", color = Color.Red)
                 } else if (viewModel.isPasswordNotValid) {
-                    Text(text = "Panjang password harus lebih dari 5", color = Color.Red)
+                    Text(text = "Panjang password harus lebih dari 6", color = Color.Red)
                 }
             }
         )
         Spacer(modifier = Modifier.height(15.dp))
         Button(
             onClick = {
-                checkInputValid(viewModel)
-                if (viewModel.isUsernameEmpty || viewModel.isEmailEmpty || viewModel.isEmailNotValid || viewModel.isPasswordEmpty || viewModel.isPasswordNotValid) {
-                    // Do nothing
-                    viewModel.resetLoading()
-                } else {
-                    viewModel.register(viewModel.email, viewModel.password, viewModel.username)
-                }
+                      viewModel.register()
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -257,17 +251,6 @@ fun RegisterScreen(
             }
         }
     }
-}
-
-fun checkInputValid(viewModel: RegisterViewModel) {
-    viewModel.isUsernameEmpty = viewModel.username == ""
-    viewModel.isEmailEmpty = viewModel.email == ""
-    viewModel.isPasswordEmpty = viewModel.password == ""
-    viewModel.isEmailNotValid = isEmailNotValid(viewModel.email)
-    viewModel.isPasswordNotValid = viewModel.password.length <= 5
-}
-fun isEmailNotValid(email: String): Boolean {
-    return !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
 }
 
 @Preview(showSystemUi = true, showBackground = true, device = Devices.PIXEL_3A)
