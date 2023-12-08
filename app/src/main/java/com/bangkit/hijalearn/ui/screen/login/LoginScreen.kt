@@ -90,12 +90,12 @@ fun LoginScreen(
         modifier = Modifier
             .fillMaxSize()
             .paint(
-                painter = painterResource(id = R.drawable.welcome_background),
-                contentScale = ContentScale.FillBounds
+                painter = painterResource(id = R.drawable.blurry_background),
+                contentScale = ContentScale.Crop
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(95.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         Image(
             painter = painterResource(id = R.drawable.reglog),
             contentDescription = "logo",
