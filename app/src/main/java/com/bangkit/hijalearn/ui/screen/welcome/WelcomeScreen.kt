@@ -47,7 +47,7 @@ fun WelcomeScreen(
             .background(MaterialTheme.colorScheme.surface),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(50.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = stringResource(id = R.string.title_welcome),
             fontWeight = FontWeight.SemiBold,
@@ -67,7 +67,7 @@ fun WelcomeScreen(
         )
         Card(
             modifier = Modifier
-                .weight(0.4f),
+                .weight(0.45f),
             shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primary
