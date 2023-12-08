@@ -12,7 +12,7 @@ data class Materi (
 
 
 val dummyMateri = listOf(
-    Materi(1,1,"Alif",R.drawable.alif,R.raw.alif_t1),
-    Materi(2,1,"Ba",R.drawable.ba,R.raw.ba_t1),
-    Materi(3,1,"Ta",R.drawable.ta,R.raw.ta_t1)
+    Materi(1,1,"Alif",R.drawable.modul_1_alif,R.raw.modul_1_alif),
+    Materi(2,1,"Ba",R.drawable.modul_1_ba,R.raw.module_1_ba),
+    Materi(3,1,"Ta",R.drawable.modul_1_ta,R.raw.module_1_ta)
 )

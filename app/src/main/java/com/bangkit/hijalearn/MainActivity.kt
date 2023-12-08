@@ -1,9 +1,15 @@
 package com.bangkit.hijalearn
 
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -41,7 +47,6 @@ import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 class MainActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("TES","Main")
         super.onCreate(savedInstanceState)
         setContent {
             HijaLearnTheme {
@@ -74,54 +79,102 @@ fun HijaLearnApp(
             startDestination = Screen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ){
-            composable(Screen.Home.route){
+            composable(
+                Screen.Home.route,
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(500)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                }
+            ){
                 HomeScreen(
                     LocalContext.current,
-                    navigateToIntroduction = {id ->
-                        navController.navigate(Screen.Introduction.createRoute(id))
+                    navigateToIntroduction = {id,namaModul,desc ->
+                        navController.navigate(Screen.Introduction.createRoute(
+                            id,
+                            Uri.decode(namaModul),
+                            Uri.decode(desc)
+                        )
+                        )
                     }
                 )
             }
             composable(
                 route = Screen.Introduction.route,
-                arguments = listOf(navArgument("id"){ type= NavType.IntType })
+                arguments = listOf(
+                    navArgument("id"){ type= NavType.IntType },
+                    navArgument("namaModul"){ type= NavType.StringType },
+                    navArgument("desc"){ type= NavType.StringType }
+                )
             ){
                 val id = it.arguments?.getInt("id")
+                val namaModul = Uri.decode(it.arguments?.getString("namaModul"))
+                val desc = Uri.decode(it.arguments?.getString("desc"))
                 IntroductionScreen(
                     context = context,
                     id = id!!,
+                    namaModul = namaModul!!,
+                    desc = desc!!,
                     onClickBack = {
                         navController.navigateUp()
                     },
-                    navigateToListMateri = {modulId ->
-                        navController.navigate(Screen.ToListMateri.createRoute(modulId))
+                    navigateToListMateri = {modulId, namaMoudl, desc ->
+                        navController.navigate(Screen.ToListMateri.createRoute(
+                            modulId,
+                            Uri.decode(namaModul),
+                            Uri.decode(desc)
+                        )
+                        )
                     }
                 )
             }
             composable(
                 route = Screen.ToListMateri.route,
-                arguments = listOf(navArgument("modulId"){ type = NavType.IntType })
+                arguments = listOf(
+                    navArgument("modulId"){ type = NavType.IntType },
+                    navArgument("namaModul"){ type= NavType.StringType },
+                    navArgument("desc"){ type= NavType.StringType }
+                )
             ){
                 val modulId = it.arguments?.getInt("modulId")
+                val namaModul = Uri.decode(it.arguments?.getString("namaModul"))
+                val desc = Uri.decode(it.arguments?.getString("desc"))
                 ListMateriScreen(
                     context = context,
                     modulId = modulId!!,
+                    namaModul = namaModul,
+                    desc = desc,
                     onClickBack = {
                         navController.navigateUp()
                     },
-                    navigateToMateri = {materiId ->
-                        navController.navigate(Screen.Materi.createRoute(materiId))
+                    navigateToMateri = {materiId, modulId, namaModul->
+                        navController.navigate(Screen.Materi.createRoute(materiId,modulId,Uri.decode(namaModul)))
                     }
                 )
             }
             composable(
                 route = Screen.Materi.route,
-                arguments = listOf(navArgument("materiId"){ type = NavType.IntType })
+                arguments = listOf(
+                    navArgument("nomor"){ type = NavType.IntType },
+                    navArgument("modulId"){ type = NavType.IntType },
+                    navArgument("namaModul"){ type = NavType.StringType }
+                )
             ) {
-                val materiId = it.arguments?.getInt("materiId")
+                val nomor = it.arguments?.getInt("nomor")
+                val modulId = it.arguments?.getInt("modulId")
+                val namaModul = Uri.decode(it.arguments?.getString("namaModul"))
                 MateriScreen(
                     context = context,
-                    materiId = materiId!!,
+                    nomor = nomor!!,
+                    modulId = modulId!!,
+                    namaModul = namaModul!!,
                     onClickBack = {
                         navController.navigateUp()
                     }

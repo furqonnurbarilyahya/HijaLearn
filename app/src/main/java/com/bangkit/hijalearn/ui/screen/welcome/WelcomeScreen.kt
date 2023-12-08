@@ -47,17 +47,27 @@ fun WelcomeScreen(
             .background(MaterialTheme.colorScheme.surface),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(50.dp))
+        Text(
+            text = stringResource(id = R.string.title_welcome),
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 26.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(25.dp)
+        )
         Image(
-            painter = painterResource(id = R.drawable.logo),
+            painter = painterResource(id = R.drawable.welcome_logo),
             contentDescription = "Logo",
             modifier = Modifier
                 .width(220.dp)
                 .height(186.dp)
-                .weight(0.55f)
+                .weight(0.6f)
         )
         Card(
             modifier = Modifier
-                .weight(0.45f),
+                .weight(0.4f),
             shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primary
@@ -67,15 +77,7 @@ fun WelcomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = stringResource(id = R.string.title_welcome),
-                    color = Color.White,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 24.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(25.dp)
-                )
+                Spacer(modifier = Modifier.height(30.dp))
                 Text(
                     text = stringResource(id = R.string.desc_welcome),
                     color = Color.White,
@@ -90,7 +92,7 @@ fun WelcomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(40.dp)
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 28.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondary
                     )
@@ -103,7 +105,7 @@ fun WelcomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(40.dp)
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 28.dp),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = Color.White
                     ),

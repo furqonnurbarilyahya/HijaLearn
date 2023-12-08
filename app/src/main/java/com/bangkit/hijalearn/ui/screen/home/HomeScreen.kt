@@ -22,59 +22,55 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
-import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bangkit.hijalearn.MainViewModelFactory
 import com.bangkit.hijalearn.R
-import com.bangkit.hijalearn.ViewModelFactory
+import com.bangkit.hijalearn.data.UiState
+import com.bangkit.hijalearn.data.local.database.Modul
+import com.bangkit.hijalearn.data.remote.repository.MainRepository
 import com.bangkit.hijalearn.di.Injection
-import com.bangkit.hijalearn.model.Module
 import com.bangkit.hijalearn.model.User
-import com.bangkit.hijalearn.model.dummyModule
 import com.bangkit.hijalearn.ui.component.ModulItem
 import com.bangkit.hijalearn.ui.component.SectionText
-import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 @Composable
 fun HomeScreen (
     context: Context,
-    navigateToIntroduction: (Int) -> Unit,
+    navigateToIntroduction: (Int,String,String) -> Unit,
     viewModel: HomeViewModel = viewModel(
-        factory = ViewModelFactory(Injection.provideWelcomeRepository(context),Injection.provideMainRepository(context))
+        factory = MainViewModelFactory(Injection.provideMainRepository(context))
     )
 ) {
-    val listModule by viewModel.listModule.collectAsState()
     val user = viewModel.getSession().collectAsState(initial = User("","","","",false))
+    val namaModulState = remember {
+        mutableStateOf("")
+    }
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -129,60 +125,37 @@ fun HomeScreen (
         Spacer(modifier = Modifier.height(15.dp))
         SectionText(title = "Materi yang harus kamu pelajari!")
         Spacer(modifier = Modifier.height(10.dp))
-        Card (
-            modifier = Modifier
-                .padding(horizontal = 10.dp)
-                .fillMaxWidth()
-                .height(200.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
-            ),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 10.dp
-            )
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(0.6f)
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Modul 1",
-                        fontWeight = Bold,
-                        fontSize = 24.sp
-                    )
-                    Text(
-                        text = "Belajar Huruf Hijaiyah",
-                        fontWeight = SemiBold,
-                        fontSize = 16.sp
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "Kamu akan belajar tentang pengenalan dan pengucapan huruf hijaiyah",
-                        fontSize = 16.sp
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .weight(0.4f)
-                ) {
-                    Canvas(modifier = Modifier.size(100.dp), onDraw = {
-                        drawCircle(color = Color.Green)
-                    })
-                    Text(
-                        text = "90%",
-                        color = Color.White,
-                        textAlign = TextAlign.Start,
+        // Setup Card Progress
+        viewModel.progessState.collectAsState(initial = UiState.Loading).value.let {
+            when(it){
+                is UiState.Loading -> {
+                    Card (
                         modifier = Modifier
-                            .align(Alignment.Center)
-                    )
+                            .padding(horizontal = 10.dp)
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White
+                        ),
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 10.dp
+                        )
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    }
+                    viewModel.getProgress()
+                }
+                is UiState.Success -> {
+                    val data = it.data
+                    val progress = data.modulProgress.find { it.modulId == data.lastModulAccesId }
+                    CardProgressContent(data = data, progress = progress, namaModulState = namaModulState)
+                }
+                is UiState.Error -> {
+
                 }
             }
         }
@@ -198,29 +171,143 @@ fun HomeScreen (
             )
         }
         Spacer(modifier = Modifier.height(15.dp))
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            modifier = Modifier
-        ){
-            items(listModule, key = { it.title }) { module ->
-                ModulItem(
-                    module,
-                    modifier = Modifier.clickable {
-                        navigateToIntroduction(module.id)
-                    }
-                )
+        viewModel.allModulState.collectAsState(initial = UiState.Loading).value.let {
+            when(it) {
+                is UiState.Loading -> {
+                    viewModel.getAllModul()
+                }
+                is UiState.Success -> {
+                    namaModulState.value = it.data.first().namaModul
+                    ListModul(
+                        context = context,
+                        listModule = it.data,
+                        navigateToIntroduction = navigateToIntroduction)
+                }
+                is UiState.Error -> {
+
+                }
             }
         }
-        Spacer(modifier = Modifier.height(5.dp))
-    }
-}
-@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_3A)
-@Composable
-fun HomeScreenPreview(
 
-) {
-    HijaLearnTheme {
-        HomeScreen(LocalContext.current, navigateToIntroduction = {})
     }
 }
+
+@Composable
+fun ListModul(
+    context: Context,
+    listModule: List<Modul>,
+    navigateToIntroduction: (Int, String, String) -> Unit
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        modifier = Modifier
+    ){
+        items(listModule ?: emptyList(), key = { it.namaModul }) { module ->
+            ModulItem(
+                module,
+                context,
+                modifier = Modifier.clickable {
+                    navigateToIntroduction(module.modulId,module.namaModul,module.deskripsi)
+                }
+            )
+        }
+    }
+    Spacer(modifier = Modifier.height(5.dp))
+}
+
+@Composable
+fun CardProgressContent(
+    data: MainRepository.TesProgressResponse,
+    progress: MainRepository.TesModulProgress?,
+    namaModulState: MutableState<String>,
+) {
+    Card (
+        modifier = Modifier
+            .padding(horizontal = 10.dp)
+            .fillMaxWidth()
+            .height(200.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 10.dp
+        )
+    ) {
+        if (progress == null) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Text(text = "Kamu belum ambil kelas", modifier = Modifier.align(
+                    Alignment.Center))
+            }
+        } else {
+            val percent = ((progress.totalCompletedSubmodul.toDouble() / progress.totalSubmodul.toDouble())*100).toInt()
+            val namaModul = namaModulState.value
+            Row(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(0.6f)
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Modul ${data.lastModulAccesId}",
+                        fontWeight = Bold,
+                        fontSize = 24.sp
+                    )
+                    Text(
+                        text = "Belajar $namaModul",
+                        fontWeight = SemiBold,
+                        fontSize = 16.sp
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Kamu akan belajar tentang pengenalan dan pengucapan huruf hijaiyah/Dummy",
+                        fontSize = 16.sp
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .weight(0.4f)
+                ) {
+                    Canvas(modifier = Modifier.size(100.dp), onDraw = {
+                        drawCircle(color =
+                        if (percent >= 0 && percent <= 33) {
+                            Color.Red
+                        } else if (percent >= 34 && percent <= 66) {
+                            Color.Yellow
+                        } else {
+                            Color.Green
+                        }
+
+                        )
+                    })
+                    Text(
+                        text = "$percent%",
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        fontWeight = SemiBold,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                    )
+                }
+
+            }
+        }
+    }
+}
+
+//@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_3A)
+//@Composable
+//fun HomeScreenPreview(
+//
+//) {
+//    HijaLearnTheme {
+//        HomeScreen(LocalContext.current, navigateToIntroduction = {})
+//    }
+//}

@@ -2,7 +2,7 @@
 <resources>
     <style name="Theme.HijaLearn.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#1953A2</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/imageedit_3_8899187260</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/new_logo</item>
         <item name="windowSplashScreenAnimationDuration">1000</item>
         <item name="postSplashScreenTheme">@style/Theme.HijaLearn</item>
     </style>

@@ -26,7 +26,7 @@ import kotlin.coroutines.suspendCoroutine
 
 class WelcomeRepository(
     private val apiService: ApiService,
-    private val userPreference: UserPreference
+    private val userPreference: UserPreference,
 ) {
     private val _loginResult = MutableStateFlow<Result<User>>(Result.Loading(false))
     val loginResult: StateFlow<Result<User>> get() = _loginResult

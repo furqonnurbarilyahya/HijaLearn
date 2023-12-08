@@ -1,5 +1,6 @@
 package com.bangkit.hijalearn.ui.component
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,7 +28,9 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.bangkit.hijalearn.R
+import com.bangkit.hijalearn.data.local.database.Modul
 import com.bangkit.hijalearn.model.Module
 import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
@@ -35,9 +38,11 @@ import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 @Composable
 fun ModulItem(
-    module: Module,
+    module: Modul,
+    context: Context,
     modifier: Modifier = Modifier
 ) {
+    val image = context.resources.getIdentifier("modul_1_alif.png", "drawable", context.packageName)
     Card(
         modifier = modifier.width(200.dp),
         colors = CardDefaults.cardColors(
@@ -48,8 +53,8 @@ fun ModulItem(
         )
     ) {
         Column {
-            Image(
-                painter = painterResource(module.image),
+            AsyncImage(
+                model = module.gambarModul,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -59,13 +64,13 @@ fun ModulItem(
             Spacer(modifier = Modifier.height(10.dp))
             Column (modifier = Modifier.padding(horizontal = 8.dp)) {
                 Text(
-                    text = module.title,
+                    text = module.namaModul,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
                 )
                 Text(
-                    text = module.description,
+                    text = module.deskripsi,
                     fontSize = 12.sp
                 )
             }
@@ -74,12 +79,12 @@ fun ModulItem(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun ModulItemPreview() {
-    HijaLearnTheme {
-        ModulItem(
-            module = Module(1,R.drawable.banner, "Modul 1 | Huruf Hijaiyah", "Kamu akan belajar tentang pengenalan dan pengucapan huruf hijaiyah.")
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun ModulItemPreview() {
+//    HijaLearnTheme {
+//        ModulItem(
+//            module = Module(1,R.drawable.banner, "Modul 1 | Huruf Hijaiyah", "Kamu akan belajar tentang pengenalan dan pengucapan huruf hijaiyah.")
+//        )
+//    }
+//}

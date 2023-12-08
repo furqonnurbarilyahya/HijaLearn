@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.bangkit.hijalearn.R
 import com.bangkit.hijalearn.model.Materi
 import com.bangkit.hijalearn.model.dummyMateri
@@ -31,7 +32,7 @@ import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 @Composable
 fun MateriItem(
-    materi: Materi,
+    materi: com.bangkit.hijalearn.data.local.database.Materi,
     accesable: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -65,33 +66,39 @@ fun MateriItem(
                     .weight(0.8f)
             ) {
                 Text(
-                    text = "Huruf Hijaiyah ke-" + materi.id.toString(),
+                    text = "Huruf Hijaiyah ke-" + materi.nomor.toString(),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.ExtraBold
                 )
                 Text(
-                    text = "Siswa belajar huruf " + materi.namaHuruf,
+                    text = "Siswa belajar " + materi.namaMateri,
                 )
             }
-            Image(
-                painter = if (accesable) {
-                    painterResource(id = materi.gambar)
-                } else {
-                       painterResource(id = R.drawable.ic_lock)
-                }
-                ,
+            AsyncImage(
+                model = if (accesable) materi.namaGambar else "https://media.istockphoto.com/id/936681148/vector/lock-icon.jpg?s=612x612&w=0&k=20&c=_0AmWrBagdcee-KDhBUfLawC7Gh8CNPLWls73lKaNVA=",
                 contentDescription = null,
                 modifier = Modifier
                     .size(55.dp)
             )
+//            Image(
+//                painter = if (accesable) {
+//                    painterResource(id = materi.gambar)
+//                } else {
+//                       painterResource(id = R.drawable.ic_lock)
+//                }
+//                ,
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .size(55.dp)
+//            )
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun MateriItemPreview() {
-    HijaLearnTheme {
-        MateriItem(materi = dummyMateri[0], false)
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun MateriItemPreview() {
+//    HijaLearnTheme {
+//        MateriItem(materi = dummyMateri[0], false)
+//    }
+//}

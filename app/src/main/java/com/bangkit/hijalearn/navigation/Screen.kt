@@ -5,13 +5,13 @@ sealed class Screen(val route: String) {
     object Login: Screen("login")
     object Register: Screen("register")
     object Home: Screen("home")
-    object Introduction: Screen("introduction/{id}") {
-        fun createRoute(id: Int) = "introduction/$id"
+    object Introduction: Screen("introduction/{id}/{namaModul}/{desc}") {
+        fun createRoute(id: Int,namaModul: String, desc: String) = "introduction/$id/$namaModul/$desc"
     }
-    object ToListMateri: Screen("toListMateri/{modulId}") {
-        fun createRoute(modulId: Int) = "toListMateri/$modulId"
+    object ToListMateri: Screen("toListMateri/{modulId}/{namaModul}/{desc}") {
+        fun createRoute(id: Int,namaModul: String, desc: String) = "toListMateri/$id/$namaModul/$desc"
     }
-    object Materi: Screen("materi/{materiId}") {
-        fun createRoute(materiId: Int) = "materi/$materiId"
+    object Materi: Screen("materi/{nomor}/{modulId}/{namaModul}") {
+        fun createRoute(nomor: Int,modulId: Int,namaModul: String) = "materi/$nomor/$modulId/$namaModul"
     }
 }

@@ -15,41 +15,46 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bangkit.hijalearn.ViewModelFactory
+import com.bangkit.hijalearn.MainViewModelFactory
+import com.bangkit.hijalearn.WelcomeViewModelFactory
+import com.bangkit.hijalearn.data.Result
+import com.bangkit.hijalearn.data.UiState
+import com.bangkit.hijalearn.data.local.database.Pendahuluan
 import com.bangkit.hijalearn.di.Injection
-import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 @Composable
 fun IntroductionScreen(
     context: Context,
     id: Int,
+    namaModul: String,
+    desc: String,
     onClickBack: () -> Unit,
-    navigateToListMateri: (Int) -> Unit,
+    navigateToListMateri: (Int,String,String) -> Unit,
     viewModel: IntroductionViewModel = viewModel(
-        factory = ViewModelFactory(Injection.provideWelcomeRepository(context), Injection.provideMainRepository(context))
+        factory = MainViewModelFactory(Injection.provideMainRepository(context))
     )
 ) {
-    val introduction = viewModel.getIntroductionById(id)
     Column(
         modifier = Modifier
             .fillMaxSize(),
         horizontalAlignment = Alignment.End
     ) {
+        // Top Bar
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -67,58 +72,91 @@ fun IntroductionScreen(
                 )
             }
             Text(
-                text = introduction.judul,
+                text = namaModul,
                 color = Color.White,
                 modifier = Modifier
                     .align(Alignment.Center)
             )
         }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(top = 20.dp, start = 16.dp, end = 16.dp)
-                .weight(0.9f)
-        ) {
-            Text(
-                text = introduction.judul1,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = introduction.desc1)
-
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                text = introduction.judul2,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = introduction.desc2
-            )
-            Box(modifier = Modifier
-                .padding(end = 16.dp)
-                .fillMaxWidth()) {
-                Button(
-                    onClick = { navigateToListMateri(introduction.id) },
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .width(100.dp)
-                ) {
-                    Text(text = "Lanjut")
+        viewModel.pendahuluanState.collectAsState(initial = UiState.Loading).value.let {
+            when(it) {
+                is UiState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    viewModel.getIntroductionById(id)
+                }
+                is UiState.Success -> {
+                    val data = it.data
+                    IntroductionContent(
+                        data = data,
+                        navigateToListMateri = navigateToListMateri,
+                        namaModul = namaModul,
+                        desc = desc
+                    )
+                }
+                is UiState.Error -> {
+                    // Nothing for now
+                }
                 }
             }
-
-        }
-
-
-
-
-        Spacer(modifier = Modifier.height(8.dp))
     }
 }
+
+@Composable
+fun IntroductionContent(
+    data: Pendahuluan,
+    navigateToListMateri: (Int,String,String) -> Unit,
+    namaModul: String,
+    desc: String
+){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(top = 20.dp, start = 16.dp, end = 16.dp)
+    ) {
+        Text(
+            text = data.title1,
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = data.desc1,
+            textAlign = TextAlign.Justify
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = data.title2,
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = data.desc2,
+            textAlign = TextAlign.Justify
+        )
+        Box(modifier = Modifier
+            .padding(end = 16.dp)
+            .fillMaxWidth()) {
+            Button(
+                onClick = { navigateToListMateri(data.modulId,namaModul,desc) },
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .width(100.dp)
+            ) {
+                Text(text = "Lanjut")
+            }
+        }
+
+    }
+    Spacer(modifier = Modifier.height(8.dp))
+}
+
 
 //@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_4)
 //@Composable
