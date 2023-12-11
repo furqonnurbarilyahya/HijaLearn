@@ -14,4 +14,7 @@ sealed class Screen(val route: String) {
     object Materi: Screen("materi/{nomor}/{modulId}/{namaModul}") {
         fun createRoute(nomor: Int,modulId: Int,namaModul: String) = "materi/$nomor/$modulId/$namaModul"
     }
+    object AlQuran: Screen("AlQuran")
+    object Profile: Screen("Profile")
+    object AllMateri: Screen("AllMateri")
 }
