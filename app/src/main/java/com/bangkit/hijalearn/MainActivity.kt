@@ -15,11 +15,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.Book
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -39,10 +44,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bangkit.hijalearn.model.BottomBarItem
 import com.bangkit.hijalearn.navigation.Screen
+import com.bangkit.hijalearn.ui.screen.allmaterial.AllMaterialScreen
+import com.bangkit.hijalearn.ui.screen.alquran.AlQuranScreen
 import com.bangkit.hijalearn.ui.screen.home.HomeScreen
 import com.bangkit.hijalearn.ui.screen.introduction.IntroductionScreen
 import com.bangkit.hijalearn.ui.screen.list_materi.ListMateriScreen
 import com.bangkit.hijalearn.ui.screen.materi.MateriScreen
+import com.bangkit.hijalearn.ui.screen.profile.ProfileScreen
 import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 class MainActivity: ComponentActivity() {
@@ -70,7 +78,7 @@ fun HijaLearnApp(
             if (currentRoute != Screen.Introduction.route &&
                 currentRoute != Screen.ToListMateri.route &&
                 currentRoute != Screen.Materi.route) {
-                BottomBar()
+                BottomBar(navController)
             }
         }
     ) { innerPadding ->
@@ -180,37 +188,60 @@ fun HijaLearnApp(
                     }
                 )
             }
+            composable(Screen.Profile.route) {
+                ProfileScreen()
+            }
+            composable(Screen.AlQuran.route) {
+                AlQuranScreen()
+            }
+            composable(Screen.AllMateri.route) {
+                AllMaterialScreen()
+            }
         }
     }
 }
 
 @Composable
 fun BottomBar(
+    navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
     NavigationBar(
-        modifier = modifier
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.primary
     ) {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
         val navigationItems = listOf(
             BottomBarItem(
-                title = "Home",
-                icon = Icons.Default.Home
+                title = "Beranda",
+                icon = Icons.Outlined.Home,
+                screen = Screen.Home
             ),
             BottomBarItem(
                 title = "Materi",
-                icon = Icons.Default.Favorite
+                icon = Icons.Outlined.Book,
+                screen = Screen.AllMateri
             ),
             BottomBarItem(
                 title = "Al-Qur'an",
-                icon = Icons.Default.AccountCircle
+                icon = Icons.Outlined.Book,
+                screen = Screen.AlQuran
             ),
             BottomBarItem(
                 title = "Profil",
-                icon = Icons.Default.AccountCircle
+                icon = Icons.Outlined.Person,
+                screen = Screen.Profile
             ),
         )
         navigationItems.map {
             NavigationBarItem(
+                colors = NavigationBarItemDefaults.colors(
+                    selectedTextColor = Color.White,
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = Color.White,
+                    unselectedIconColor = Color.White
+                ),
                 icon = {
                     Icon(
                         imageVector = it.icon,
@@ -218,10 +249,21 @@ fun BottomBar(
                     )
                 },
                 label = {
-                    Text(it.title)
+                    Text(
+                        text = it.title,
+                        color = Color.White
+                    )
                 },
-                selected = it.title == navigationItems[0].title,
-                onClick = {}
+                selected = currentRoute == it.screen.route,
+                onClick = {
+                    navController.navigate(it.screen.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        restoreState = true
+                        launchSingleTop = true
+                    }
+                }
             )
         }
     }
