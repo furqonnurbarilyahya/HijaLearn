@@ -12,5 +12,6 @@
     <string name="profile">Profile</string>
     <string name="list_modules">Daftar Modul</string>
     <string name="view_all">Lihat Semua</string>
+    <string name="photo_profile">photo profile</string>
 
 </resources>
