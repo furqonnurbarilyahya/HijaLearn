@@ -189,7 +189,7 @@ fun HijaLearnApp(
                 )
             }
             composable(Screen.Profile.route) {
-                ProfileScreen()
+                ProfileScreen(context)
             }
             composable(Screen.AlQuran.route) {
                 AlQuranScreen(context)
