@@ -192,7 +192,7 @@ fun HijaLearnApp(
                 ProfileScreen()
             }
             composable(Screen.AlQuran.route) {
-                AlQuranScreen()
+                AlQuranScreen(context)
             }
             composable(Screen.AllMateri.route) {
                 AllMaterialScreen()

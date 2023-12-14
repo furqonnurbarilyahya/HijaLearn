@@ -10,6 +10,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiConfig {
@@ -38,6 +39,24 @@ object ApiConfig {
 
         val retrofit = Retrofit.Builder()
             .baseUrl("https://hijalearn-be-e6mqsjvzxq-et.a.run.app/api/v1/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
+
+        return retrofit.create(ApiService::class.java)
+    }
+
+    fun getAlquranApiService(): ApiService {
+        val loggingInterceptor = HttpLoggingInterceptor()
+            .setLevel(HttpLoggingInterceptor.Level.BODY)
+
+        val client: OkHttpClient = OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.npoint.io/")
+            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()

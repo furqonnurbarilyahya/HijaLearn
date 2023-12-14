@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.bangkit.hijalearn.data.remote.repository.MainRepository
 import com.bangkit.hijalearn.data.remote.repository.WelcomeRepository
+import com.bangkit.hijalearn.ui.screen.alquran.AlQuranViewModel
 import com.bangkit.hijalearn.ui.screen.home.HomeViewModel
 import com.bangkit.hijalearn.ui.screen.introduction.IntroductionViewModel
 import com.bangkit.hijalearn.ui.screen.list_materi.ListMateriViewModel
@@ -23,6 +24,8 @@ class MainViewModelFactory(private val mainRepository: MainRepository): ViewMode
             return ListMateriViewModel(mainRepository) as T
         } else if (modelClass.isAssignableFrom(MateriViewModel::class.java)) {
             return MateriViewModel(mainRepository) as T
+        } else if (modelClass.isAssignableFrom(AlQuranViewModel::class.java)) {
+            return AlQuranViewModel(mainRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
     }
