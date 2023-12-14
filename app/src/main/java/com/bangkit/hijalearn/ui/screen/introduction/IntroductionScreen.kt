@@ -156,12 +156,3 @@ fun IntroductionContent(
     }
     Spacer(modifier = Modifier.height(8.dp))
 }
-
-
-//@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_4)
-//@Composable
-//fun IntroductionScreenPreview() {
-//    HijaLearnTheme {
-//        IntroductionScreen(onClickBack = {})
-//    }
-//}

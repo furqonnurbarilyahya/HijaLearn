@@ -78,13 +78,3 @@ fun ModulItem(
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun ModulItemPreview() {
-//    HijaLearnTheme {
-//        ModulItem(
-//            module = Module(1,R.drawable.banner, "Modul 1 | Huruf Hijaiyah", "Kamu akan belajar tentang pengenalan dan pengucapan huruf hijaiyah.")
-//        )
-//    }
-//}
