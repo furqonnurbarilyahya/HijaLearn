@@ -17,4 +17,5 @@ sealed class Screen(val route: String) {
     object AlQuran: Screen("AlQuran")
     object Profile: Screen("Profile")
     object AllMateri: Screen("AllMateri")
+    object InfoProfile: Screen("InfoProfile")
 }

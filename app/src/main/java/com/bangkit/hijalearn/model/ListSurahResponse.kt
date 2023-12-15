@@ -2,7 +2,7 @@ package com.bangkit.hijalearn.model
 
 import com.google.gson.annotations.SerializedName
 
-data class SurahResponse(
+data class ListSurahResponse(
 
 	@field:SerializedName("ListSurahResponse")
 	val listSurahResponse: List<ListSurahResponseItem>

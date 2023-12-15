@@ -11,6 +11,7 @@ import com.bangkit.hijalearn.data.pref.UserPreference
 import com.bangkit.hijalearn.data.remote.retrofit.ApiService
 import com.bangkit.hijalearn.model.ListSurahResponseItem
 import com.bangkit.hijalearn.model.SurahResponse
+import com.bangkit.hijalearn.model.SurahResponseItem
 import com.bangkit.hijalearn.model.User
 import com.bangkit.hijalearn.model.dummyMateri
 import kotlinx.coroutines.delay
@@ -160,6 +161,19 @@ class MainRepository(
             _listSurahState.value = UiState.Error(e.message.toString())
         }
         Log.d("SURAH", "${_listSurahState.value.toString()}")
+    }
+    
+    //UIState List Ayat per Surah
+    private val _listAyatState: MutableStateFlow<UiState<List<SurahResponseItem>>> = MutableStateFlow(UiState.Loading)
+    val listAyatState: StateFlow<UiState<List<SurahResponseItem>>> get() = _listAyatState
+
+    suspend fun getSurahById(id: String) {
+        try {
+            _listAyatState.value = UiState.Success(alQuranApiService.getSurahById(id))
+        } catch (e: Exception) {
+            _listAyatState.value = UiState.Error(e.message.toString())
+        }
+        Log.d("AYAT", "${_listAyatState.value.toString()}")
     }
 
     data class TesModulProgress(
