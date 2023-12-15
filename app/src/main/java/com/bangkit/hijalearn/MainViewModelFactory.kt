@@ -12,6 +12,7 @@ import com.bangkit.hijalearn.ui.screen.login.LoginViewModel
 import com.bangkit.hijalearn.ui.screen.materi.MateriViewModel
 import com.bangkit.hijalearn.ui.screen.profile.ProfileViewModel
 import com.bangkit.hijalearn.ui.screen.register.RegisterViewModel
+import com.bangkit.hijalearn.ui.screen.surah.SurahViewModel
 
 class MainViewModelFactory(private val mainRepository: MainRepository): ViewModelProvider.NewInstanceFactory() {
 
@@ -29,6 +30,8 @@ class MainViewModelFactory(private val mainRepository: MainRepository): ViewMode
             return AlQuranViewModel(mainRepository) as T
         } else if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
             return ProfileViewModel(mainRepository) as T
+        } else if (modelClass.isAssignableFrom(SurahViewModel::class.java)) {
+            return SurahViewModel(mainRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
     }

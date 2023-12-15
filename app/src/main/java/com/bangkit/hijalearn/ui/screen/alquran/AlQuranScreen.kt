@@ -41,6 +41,7 @@ import com.bangkit.hijalearn.model.ListSurahResponseItem
 @Composable
 fun AlQuranScreen(
     context: Context,
+    navigateToSurah: (String) -> Unit,
     alQuranViewModel: AlQuranViewModel =  viewModel(factory = MainViewModelFactory(Injection.provideMainRepository(context))),
 ) {
 
@@ -63,7 +64,8 @@ fun AlQuranScreen(
                 val surah = it.data
                 //content
                 ListSurahItem(
-                    surahItem = surah
+                    surahItem = surah,
+                    navigateToSurah = navigateToSurah
                 )
             }
 
@@ -75,6 +77,7 @@ fun AlQuranScreen(
 @Composable
 fun ListSurahItem(
     surahItem: List<ListSurahResponseItem>,
+    navigateToSurah: (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.padding(10.dp)
@@ -82,7 +85,9 @@ fun ListSurahItem(
         items(surahItem) {
             Card (
                 modifier = Modifier
-                    .clickable {  }
+                    .clickable {
+                        navigateToSurah(it.nomor)
+                    }
                     .fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)

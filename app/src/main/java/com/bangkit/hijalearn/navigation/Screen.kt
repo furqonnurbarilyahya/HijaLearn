@@ -18,4 +18,7 @@ sealed class Screen(val route: String) {
     object Profile: Screen("Profile")
     object AllMateri: Screen("AllMateri")
     object InfoProfile: Screen("InfoProfile")
+    object Surah: Screen ("surah/{id}") {
+        fun createRoute(id: String) = "surah/$id"
+    }
 }

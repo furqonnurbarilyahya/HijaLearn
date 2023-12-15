@@ -51,6 +51,7 @@ import com.bangkit.hijalearn.ui.screen.introduction.IntroductionScreen
 import com.bangkit.hijalearn.ui.screen.list_materi.ListMateriScreen
 import com.bangkit.hijalearn.ui.screen.materi.MateriScreen
 import com.bangkit.hijalearn.ui.screen.profile.ProfileScreen
+import com.bangkit.hijalearn.ui.screen.surah.SurahScreen
 import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 class MainActivity: ComponentActivity() {
@@ -192,7 +193,29 @@ fun HijaLearnApp(
                 ProfileScreen(context)
             }
             composable(Screen.AlQuran.route) {
-                AlQuranScreen(context)
+                AlQuranScreen(
+                    context,
+                    navigateToSurah = { id ->
+                        navController.navigate(Screen.Surah.createRoute(
+                            id
+                        ))
+                    }
+                )
+            }
+            composable(
+                route = Screen.Surah.route,
+                arguments = listOf(
+                    navArgument("id") { type = NavType.StringType }
+                )
+            ) {
+                val id = it.arguments?.getString("id")
+                SurahScreen(
+                    context = context,
+                    id = id!!,
+                    onClickBack = {
+                        navController.navigateUp()
+                    }
+                )
             }
             composable(Screen.AllMateri.route) {
                 AllMaterialScreen()
