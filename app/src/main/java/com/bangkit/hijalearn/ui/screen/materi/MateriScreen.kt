@@ -1,8 +1,13 @@
 package com.bangkit.hijalearn.ui.screen.materi
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.registerForActivityResult
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,6 +53,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.bangkit.hijalearn.MainViewModelFactory
@@ -66,6 +72,46 @@ fun MateriScreen (
         factory = MainViewModelFactory(Injection.provideMainRepository(context))
     )
 ) {
+    var isRecording by remember {
+        mutableStateOf(false)
+    }
+    
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()){isGranted ->
+            if (isGranted) {
+                // Start
+                if (isRecording) {
+                    viewModel.stopRecording()
+                    isRecording = false
+                } else {
+                    viewModel.startRecording(context = context)
+                    isRecording = true
+                }
+            } else {
+                Toast.makeText(context,"Permisi denied",Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
+    fun checkPermissionAndStartStopRecording() {
+        when {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                if (isRecording) {
+                    viewModel.stopRecording()
+                    isRecording = false
+                } else {
+                    viewModel.startRecording(context = context)
+                    isRecording = true
+                }
+            }
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            }
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -183,6 +229,45 @@ fun MateriScreen (
                         if (getProgressLoading || updateProgressLoading) {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }
+
+
+                        // BUAT TEST RECORD AUDIO
+                        Button(
+                            onClick = { checkPermissionAndStartStopRecording() },
+                            modifier = Modifier.align(Alignment.TopStart)
+                        ) {
+                            if (isRecording) {
+                                Text(text = "Stop Record")
+                            } else {
+                                Text(text = "Start Record")
+                            }
+                        }
+
+                        Text(
+                            text = if (viewModel.recordedFilePath.isNullOrEmpty()) "Kosong" else viewModel.recordedFilePath!!,
+                            modifier = Modifier.align(Alignment.TopCenter)
+                        )
+
+                        Button(
+                            onClick = {
+                                      if (viewModel.recordedFilePath.isNullOrEmpty()) {
+                                          // do nothin
+                                      } else {
+                                          val mPlayer = MediaPlayer()
+                                          mPlayer.setDataSource(viewModel.recordedFilePath)
+                                          mPlayer.prepare()
+                                          mPlayer.start()
+                                      }
+                            },
+                            modifier = Modifier.align(Alignment.TopEnd)
+                        ) {
+                            if (viewModel.recordedFilePath.isNullOrEmpty()) {
+                                Text(text = "Disabled")
+                            } else {
+                                Text(text = "Play")
+                            }
+                        }
+                        
                         Button(
                             onClick = {
                                 //api.Evaluate(sudahPernah)
@@ -242,3 +327,4 @@ fun MateriScreen (
         }
     }
 }
+

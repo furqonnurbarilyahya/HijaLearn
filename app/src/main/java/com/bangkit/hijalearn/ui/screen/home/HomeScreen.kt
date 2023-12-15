@@ -276,9 +276,9 @@ fun CardProgressContent(
                 ) {
                     Canvas(modifier = Modifier.size(100.dp), onDraw = {
                         drawCircle(color =
-                        if (percent >= 0 && percent <= 33) {
+                        if (percent in 0..33) {
                             Color.Red
-                        } else if (percent >= 34 && percent <= 66) {
+                        } else if (percent in 34..66) {
                             Color.Yellow
                         } else {
                             Color.Green
