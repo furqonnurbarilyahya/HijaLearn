@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,7 +42,7 @@ import com.bangkit.hijalearn.model.ListSurahResponseItem
 @Composable
 fun AlQuranScreen(
     context: Context,
-    navigateToSurah: (String) -> Unit,
+    navigateToSurah: (String, String, Int) -> Unit,
     alQuranViewModel: AlQuranViewModel =  viewModel(factory = MainViewModelFactory(Injection.provideMainRepository(context))),
 ) {
 
@@ -77,7 +78,7 @@ fun AlQuranScreen(
 @Composable
 fun ListSurahItem(
     surahItem: List<ListSurahResponseItem>,
-    navigateToSurah: (String) -> Unit
+    navigateToSurah: (String, String, Int) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.padding(10.dp)
@@ -86,7 +87,7 @@ fun ListSurahItem(
             Card (
                 modifier = Modifier
                     .clickable {
-                        navigateToSurah(it.nomor)
+                        navigateToSurah(it.nomor, it.nama, it.ayat)
                     }
                     .fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -124,7 +125,7 @@ fun ListSurahItem(
                                 Text(
                                     text = it.nama,
                                     fontSize = 16.sp,
-                                    fontStyle = FontStyle.Italic
+                                    fontWeight = FontWeight.SemiBold
                                 )
                                 Text(
                                     text = " (" + it.ayat + " ayat)",

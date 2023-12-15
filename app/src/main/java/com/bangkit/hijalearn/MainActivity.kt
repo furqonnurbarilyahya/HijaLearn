@@ -76,9 +76,11 @@ fun HijaLearnApp(
     val currentRoute = navBackStackEntry?.destination?.route
     Scaffold(
         bottomBar = {
-            if (currentRoute != Screen.Introduction.route &&
+            if (
+                currentRoute != Screen.Introduction.route &&
                 currentRoute != Screen.ToListMateri.route &&
-                currentRoute != Screen.Materi.route) {
+                currentRoute != Screen.Materi.route &&
+                currentRoute != Screen.Surah.route) {
                 BottomBar(navController)
             }
         }
@@ -195,9 +197,11 @@ fun HijaLearnApp(
             composable(Screen.AlQuran.route) {
                 AlQuranScreen(
                     context,
-                    navigateToSurah = { id ->
+                    navigateToSurah = { idSurah, surahName, ayat ->
                         navController.navigate(Screen.Surah.createRoute(
-                            id
+                            idSurah,
+                            surahName,
+                            ayat
                         ))
                     }
                 )
@@ -205,13 +209,19 @@ fun HijaLearnApp(
             composable(
                 route = Screen.Surah.route,
                 arguments = listOf(
-                    navArgument("id") { type = NavType.StringType }
+                    navArgument("surahId") { type = NavType.StringType },
+                    navArgument("surahName") { type = NavType.StringType },
+                    navArgument("ayat") { type = NavType.IntType }
                 )
             ) {
-                val id = it.arguments?.getString("id")
+                val surahId = it.arguments?.getString("surahId")
+                val surahName = it.arguments?.getString("surahName")
+                val ayat = it.arguments?.getInt("ayat")
                 SurahScreen(
                     context = context,
-                    id = id!!,
+                    surahId = surahId!!,
+                    surahName = surahName!!,
+                    ayat = ayat!!,
                     onClickBack = {
                         navController.navigateUp()
                     }
