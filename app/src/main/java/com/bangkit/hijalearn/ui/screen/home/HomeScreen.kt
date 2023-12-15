@@ -301,13 +301,3 @@ fun CardProgressContent(
         }
     }
 }
-
-//@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_3A)
-//@Composable
-//fun HomeScreenPreview(
-//
-//) {
-//    HijaLearnTheme {
-//        HomeScreen(LocalContext.current, navigateToIntroduction = {})
-//    }
-//}

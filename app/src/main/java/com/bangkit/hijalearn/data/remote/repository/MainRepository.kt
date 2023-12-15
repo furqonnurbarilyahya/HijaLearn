@@ -9,6 +9,9 @@ import com.bangkit.hijalearn.data.local.database.ModuleDatabase
 import com.bangkit.hijalearn.data.local.database.Pendahuluan
 import com.bangkit.hijalearn.data.pref.UserPreference
 import com.bangkit.hijalearn.data.remote.retrofit.ApiService
+import com.bangkit.hijalearn.model.ListSurahResponseItem
+import com.bangkit.hijalearn.model.SurahResponse
+import com.bangkit.hijalearn.model.SurahResponseItem
 import com.bangkit.hijalearn.model.User
 import com.bangkit.hijalearn.model.dummyMateri
 import kotlinx.coroutines.delay
@@ -16,11 +19,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import retrofit2.Call
 
 class MainRepository(
     private val apiService: ApiService,
     private val userPreference: UserPreference,
-    private val moduleDatabase: ModuleDatabase
+    private val moduleDatabase: ModuleDatabase,
+    private val alQuranApiService: ApiService
 ) {
     private val moduleDao = moduleDatabase.moduleDao()
 
@@ -144,6 +149,33 @@ class MainRepository(
              totalCompleted.value = fetch.value?.modulProgress?.find { it.modulId == modulId }?.totalCompletedSubmodul
         }
     }
+
+    //UIState List Surah
+    private val _listSurahState: MutableStateFlow<UiState<List<ListSurahResponseItem>>> = MutableStateFlow(UiState.Loading)
+    val listSurahState: StateFlow<UiState<List<ListSurahResponseItem>>> get() = _listSurahState
+
+    suspend fun getListSurah() {
+        try {
+            _listSurahState.value = UiState.Success(alQuranApiService.getListSurah())
+        } catch (e: Exception) {
+            _listSurahState.value = UiState.Error(e.message.toString())
+        }
+        Log.d("SURAH", "${_listSurahState.value.toString()}")
+    }
+    
+    //UIState List Ayat per Surah
+    private val _listAyatState: MutableStateFlow<UiState<List<SurahResponseItem>>> = MutableStateFlow(UiState.Loading)
+    val listAyatState: StateFlow<UiState<List<SurahResponseItem>>> get() = _listAyatState
+
+    suspend fun getSurahById(id: String) {
+        try {
+            _listAyatState.value = UiState.Success(alQuranApiService.getSurahById(id))
+        } catch (e: Exception) {
+            _listAyatState.value = UiState.Error(e.message.toString())
+        }
+        Log.d("AYAT", "${_listAyatState.value.toString()}")
+    }
+
     data class TesModulProgress(
         val modulId: Int,
         val completed: Boolean = false,
@@ -161,10 +193,12 @@ class MainRepository(
         fun getInstance(
             apiService: ApiService,
             userPreference: UserPreference,
-            moduleDatabase: ModuleDatabase
+            moduleDatabase: ModuleDatabase,
+            alQuranApiService: ApiService
+
         ): MainRepository =
             instance ?: synchronized(this) {
-                instance ?: MainRepository(apiService, userPreference,moduleDatabase)
+                instance ?: MainRepository(apiService, userPreference,moduleDatabase, alQuranApiService)
             }.also { instance = it }
     }
 }
