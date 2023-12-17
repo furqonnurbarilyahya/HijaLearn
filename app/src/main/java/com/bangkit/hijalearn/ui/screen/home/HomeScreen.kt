@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.text.style.TextAlign
@@ -79,48 +80,51 @@ fun HomeScreen (
             .verticalScroll(rememberScrollState())
     ) {
         Card (
-            modifier = Modifier
-                .height(180.dp),
-            shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primary)
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(bottomEnd = 24.dp, bottomStart = 24.dp)
         ) {
-            Column {
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp, start = 16.dp, end = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+            Box(modifier = Modifier){
+                Image(
+                    painter = painterResource(id = R.drawable.bg_home),
+                    contentDescription = null,
+                )
+                Column (
+                    modifier = Modifier.padding(start = 16.dp, top = 18.dp, end = 16.dp)
                 ) {
-                    Image(
-                        modifier = Modifier
-                            .height(45.dp)
-                            .width(45.dp),
-                        painter = painterResource(R.drawable.icon_category_espresso),
-                        contentDescription = null,
-                    )
-                    Spacer(modifier = Modifier.width(290.dp))
-                    IconButton(
-                        onClick = { /*TODO*/ },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Notifications,
-                            contentDescription = null
+                    Row (
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween) {
+                        Image(
+                            modifier = Modifier
+                                .height(45.dp)
+                                .width(45.dp),
+                            painter = painterResource(R.drawable.icon_category_espresso),
+                            contentDescription = null,
                         )
+                        IconButton(
+                            onClick = { /*TODO*/ },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Notifications,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                        }
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Assalamu'alaykum " + user.value.username,
+                        fontSize = 16.sp,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(15.dp))
+                    Text(
+                        text = "Apakah sudah siap untuk belajar?",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp,
+                        color = Color.White
+                    )
                 }
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "Assalamu'alaykum " + user.value.username
-                )
-                Spacer(modifier = Modifier.height(7.dp))
-                Text(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "Ayo mulai perjalanan Belajarmu",
-                    fontWeight = SemiBold,
-                    fontSize = 20.sp
-                )
             }
         }
         Spacer(modifier = Modifier.height(15.dp))

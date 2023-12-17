@@ -1,10 +1,12 @@
 package com.bangkit.hijalearn.ui.screen.alquran
 
 import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.Center
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,9 +18,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +34,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.toUpperCase
@@ -35,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bangkit.hijalearn.MainViewModelFactory
+import com.bangkit.hijalearn.R
 import com.bangkit.hijalearn.data.UiState
 import com.bangkit.hijalearn.di.Injection
 import com.bangkit.hijalearn.model.ListSurahResponseItem
@@ -63,11 +71,48 @@ fun AlQuranScreen(
 
             is UiState.Success -> {
                 val surah = it.data
-                //content
-                ListSurahItem(
-                    surahItem = surah,
-                    navigateToSurah = navigateToSurah
-                )
+                Column (modifier = Modifier.fillMaxSize()){
+                    Box {
+                        Image(
+                            painter = painterResource(id = R.drawable.bg_home),
+                            contentDescription = null
+                        )
+                        Column (horizontalAlignment = CenterHorizontally){
+                            Row (
+                                horizontalArrangement = Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 40.dp),
+                            ) {
+                                Text(
+                                    text = "القرآن الكريم",
+                                    color = Color.White,
+                                    fontSize = 60.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(3.dp).width(370.dp).background(color = Color.White))
+                            Row (
+                                horizontalArrangement = Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 10.dp),
+                            ) {
+                                Text(
+                                    text = "Al-Qur'an Nul Karim",
+                                    color = Color.White,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontStyle = FontStyle.Italic
+                                )
+                            }
+                        }
+                    }
+                    ListSurahItem(
+                        surahItem = surah,
+                        navigateToSurah = navigateToSurah
+                    )
+                }
             }
 
             else -> {}
