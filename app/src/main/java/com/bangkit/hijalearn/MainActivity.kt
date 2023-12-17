@@ -228,7 +228,7 @@ fun HijaLearnApp(
                 )
             }
             composable(Screen.AllMateri.route) {
-                AllMaterialScreen()
+                AllMaterialScreen(context)
             }
         }
     }
