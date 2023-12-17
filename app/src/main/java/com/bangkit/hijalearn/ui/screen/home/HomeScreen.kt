@@ -33,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -160,15 +161,21 @@ fun HomeScreen (
             }
         }
         Spacer(modifier = Modifier.height(15.dp))
-        Row (modifier = Modifier.fillMaxWidth()){
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ){
             SectionText(title = "Daftar Modul")
-            Spacer(modifier = Modifier.width(100.dp))
-            Text(
-                modifier = Modifier.padding(top = 17.dp),
-                text = stringResource(R.string.view_all),
-                fontSize = 14.sp,
-                fontWeight = SemiBold
-            )
+            TextButton(onClick = {}) {
+                Text(
+                    modifier = Modifier,
+                    text = stringResource(R.string.view_all),
+                    fontSize = 14.sp,
+                    fontWeight = SemiBold
+                )
+            }
         }
         Spacer(modifier = Modifier.height(15.dp))
         viewModel.allModulState.collectAsState(initial = UiState.Loading).value.let {

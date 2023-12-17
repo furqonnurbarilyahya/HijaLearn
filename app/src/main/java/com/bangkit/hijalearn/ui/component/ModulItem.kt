@@ -44,7 +44,9 @@ fun ModulItem(
 ) {
     val image = context.resources.getIdentifier("modul_1_alif.png", "drawable", context.packageName)
     Card(
-        modifier = modifier.width(200.dp),
+        modifier = modifier
+            .width(200.dp)
+            .padding(bottom = 10.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
@@ -71,7 +73,8 @@ fun ModulItem(
                 )
                 Text(
                     text = module.deskripsi,
-                    fontSize = 12.sp
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
