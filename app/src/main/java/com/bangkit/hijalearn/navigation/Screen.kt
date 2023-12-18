@@ -21,4 +21,5 @@ sealed class Screen(val route: String) {
     object Surah: Screen ("surah/{surahId}/{surahName}/{ayat}") {
         fun createRoute(surahId: String, surahName: String, ayat: Int) = "surah/$surahId/$surahName/$ayat"
     }
+    object DetailProfile : Screen("DetailProfile")
 }

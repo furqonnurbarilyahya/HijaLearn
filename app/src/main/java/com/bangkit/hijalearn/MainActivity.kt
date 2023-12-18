@@ -46,6 +46,7 @@ import com.bangkit.hijalearn.model.BottomBarItem
 import com.bangkit.hijalearn.navigation.Screen
 import com.bangkit.hijalearn.ui.screen.allmaterial.AllMaterialScreen
 import com.bangkit.hijalearn.ui.screen.alquran.AlQuranScreen
+import com.bangkit.hijalearn.ui.screen.detail_profile.DetailProfileScreen
 import com.bangkit.hijalearn.ui.screen.home.HomeScreen
 import com.bangkit.hijalearn.ui.screen.introduction.IntroductionScreen
 import com.bangkit.hijalearn.ui.screen.list_materi.ListMateriScreen
@@ -80,7 +81,8 @@ fun HijaLearnApp(
                 currentRoute != Screen.Introduction.route &&
                 currentRoute != Screen.ToListMateri.route &&
                 currentRoute != Screen.Materi.route &&
-                currentRoute != Screen.Surah.route) {
+                currentRoute != Screen.Surah.route &&
+                currentRoute != Screen.DetailProfile.route) {
                 BottomBar(navController)
             }
         }
@@ -192,7 +194,14 @@ fun HijaLearnApp(
                 )
             }
             composable(Screen.Profile.route) {
-                ProfileScreen(context)
+                ProfileScreen(navController)
+            }
+            composable(Screen.DetailProfile.route) {
+                DetailProfileScreen(
+                    onClickBack = {
+                        navController.navigateUp()
+                    }
+                )
             }
             composable(Screen.AlQuran.route) {
                 AlQuranScreen(
