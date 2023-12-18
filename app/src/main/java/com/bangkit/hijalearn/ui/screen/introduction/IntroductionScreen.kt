@@ -98,7 +98,17 @@ fun IntroductionScreen(
                     )
                 }
                 is UiState.Error -> {
-                    // Nothing for now
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(text = "Gagal memuat")
+                            Button(onClick = { viewModel.getIntroductionById(id) }) {
+                                Text(text = "Coba lagi")
+                            }
+                        }
+                    }
                 }
                 }
             }

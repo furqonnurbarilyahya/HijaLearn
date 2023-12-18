@@ -389,7 +389,17 @@ fun MateriScreen (
                     }
                 }
                 is UiState.Error -> {
-                    // DO Nothing
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(text = "Gagal memuat")
+                            Button(onClick = { viewModel.getMateriByNomorAndModulId(nomor, modulId) }) {
+                                Text(text = "Coba lagi")
+                            }
+                        }
+                    }
                 }
             }
 

@@ -1,6 +1,7 @@
 package com.bangkit.hijalearn.ui.screen.home
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -77,6 +79,9 @@ fun HomeScreen (
 ) {
     val user = Firebase.auth.currentUser
     val namaModulState = remember {
+        mutableStateOf("")
+    }
+    val descModulState = remember {
         mutableStateOf("")
     }
     Column (
@@ -161,10 +166,34 @@ fun HomeScreen (
                     val data = it.data
                     val module = data.module
                     val progress = module.find { it.moduleId == data.lastModule }
-                    CardProgressContent(data = data, progress = progress!!, namaModulState = namaModulState)
+                    CardProgressContent(data = data, progress = progress!!, namaModulState = namaModulState, descModulState = descModulState)
                 }
                 is UiState.Error -> {
-
+                    Card (
+                        modifier = Modifier
+                            .padding(horizontal = 10.dp)
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White
+                        ),
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 10.dp
+                        )
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Column(
+                                modifier = Modifier.align(Alignment.Center),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(text = "Gagal memuat")
+                                Button(onClick = { viewModel.getProgress() }) {
+                                    Text(text = "Coba lagi")
+                                }
+                            }
+                        }
+                        Toast.makeText(context,"Terjadi Kesalahan",Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
@@ -187,13 +216,24 @@ fun HomeScreen (
                 }
                 is UiState.Success -> {
                     namaModulState.value = it.data.first().namaModul
+                    descModulState.value = it.data.first().deskripsi
                     ListModul(
                         context = context,
                         listModule = it.data,
                         navigateToIntroduction = navigateToIntroduction)
                 }
                 is UiState.Error -> {
-
+                    Box(modifier = Modifier.height(200.dp).fillMaxWidth()) {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(text = "Gagal memuat")
+                            Button(onClick = { viewModel.getProgress() }) {
+                                Text(text = "Coba lagi")
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -230,6 +270,7 @@ fun CardProgressContent(
     data: ProgressResponse,
     progress: ModuleItem,
     namaModulState: MutableState<String>,
+    descModulState: MutableState<String>
 ) {
     Card (
         modifier = Modifier
@@ -243,9 +284,9 @@ fun CardProgressContent(
             defaultElevation = 10.dp
         )
     ) {
-        //            val percent = ((progress.totalCompletedSubmodul.toDouble() / progress.totalSubmodul.toDouble())*100).toInt()
         val percent = ((progress.subModuleDone.toDouble() / progress.totalSubModule.toDouble()) * 100).toInt()
         val namaModul = namaModulState.value
+        val descModul = descModulState.value
         Row(
             modifier = Modifier
                 .fillMaxSize(),
@@ -269,7 +310,7 @@ fun CardProgressContent(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "Kamu akan belajar tentang pengenalan dan pengucapan huruf hijaiyah/Dummy",
+                    text = descModul,
                     fontSize = 16.sp
                 )
             }

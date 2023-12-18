@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -120,7 +121,17 @@ fun ListMateriScreen(
                     }
                 }
                 is UiState.Error -> {
-                    // Do nothing
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(text = "Gagal memuat")
+                            Button(onClick = { viewModel.getAllMateriWithModulByModulId(modulId) }) {
+                                Text(text = "Coba lagi")
+                            }
+                        }
+                    }
                 }
             }
         }

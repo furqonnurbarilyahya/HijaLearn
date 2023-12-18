@@ -1,9 +1,5 @@
 package com.bangkit.hijalearn.data.remote.repository
 
-import android.util.Log
-import android.widget.Toast
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.bangkit.hijalearn.data.Result
 import com.bangkit.hijalearn.data.pref.UserPreference
 import com.bangkit.hijalearn.data.remote.retrofit.ApiService
@@ -11,18 +7,13 @@ import com.bangkit.hijalearn.model.User
 import kotlinx.coroutines.flow.Flow
 import com.bangkit.hijalearn.util.Event
 import com.google.firebase.Firebase
-import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.tasks.await
 import retrofit2.HttpException
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class WelcomeRepository(
     private val apiService: ApiService,
@@ -48,10 +39,9 @@ class WelcomeRepository(
         _registerResult.value = Result.Loading(true)
         try {
             val response = apiService.register(email,password,username)
-            Log.d("CEK",response)
             _registerResult.value =  Result.Success(response)
         } catch (e: HttpException) {
-            _registerResult.value = Result.Error(Event(e.toString()))
+            _registerResult.value = Result.Error(Event(e.message.toString()))
         } catch (e: Exception) {
             _registerResult.value = Result.Error(Event("An error occurred"))
         }
