@@ -23,9 +23,14 @@ import com.bangkit.hijalearn.data.remote.repository.MainRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
 class MateriViewModel(private val repository: MainRepository): ViewModel() {
+    val predictionResult = repository.predictionResult
     val materiState = repository.materiState
     val totalCompleted = repository.totalCompleted
     val getProgressLoading = repository.getProgressLoading
@@ -35,13 +40,6 @@ class MateriViewModel(private val repository: MainRepository): ViewModel() {
             repository.getMateriByNomorAndModulId(nomor,modulId)
         }
     }
-
-    fun updateProgress(modulId: Int) {
-        viewModelScope.launch {
-            repository.updateProgress(modulId)
-        }
-    }
-
 
     private var mediaRecorder: MediaRecorder? = null
 
@@ -64,6 +62,27 @@ class MateriViewModel(private val repository: MainRepository): ViewModel() {
             setOutputFile(recordedFilePath)
             prepare()
             start()
+        }
+    }
+
+    fun postPrediction(caraEja: String,done: Boolean, moduleId: Int) {
+        viewModelScope.launch {
+
+            val audioFile = recordedFilePath?.let { File(it) }
+
+
+            val requestAudioFile = audioFile?.asRequestBody("audio/wav".toMediaType())
+            val requestCaraEja = caraEja.toRequestBody("text/plain".toMediaType())
+            val requestDone = done.toString().toRequestBody("text/plain".toMediaType())
+            val requestModuleId = moduleId.toString().toRequestBody("text/plain".toMediaType())
+
+            val multipartBody = MultipartBody.Part.createFormData(
+                "audio",
+                audioFile!!.name,
+                requestAudioFile!!
+            )
+
+            repository.postPrediction(multipartBody,requestCaraEja,requestModuleId,requestDone)
         }
     }
 

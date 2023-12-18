@@ -7,7 +7,6 @@ import android.media.MediaPlayer
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.registerForActivityResult
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,12 +21,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowCircleLeft
+import androidx.compose.material.icons.filled.ArrowCircleRight
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.StopCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -38,6 +41,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,7 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -57,9 +62,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.bangkit.hijalearn.MainViewModelFactory
-import com.bangkit.hijalearn.WelcomeViewModelFactory
+import com.bangkit.hijalearn.data.Result
 import com.bangkit.hijalearn.data.UiState
 import com.bangkit.hijalearn.di.Injection
+import com.bangkit.hijalearn.ui.component.MateriDialog
 
 @Composable
 fun MateriScreen (
@@ -67,6 +73,7 @@ fun MateriScreen (
     nomor: Int,
     modulId: Int,
     namaModul: String,
+    onPrevNextMateriClick: (Int,Int,String) -> Unit,
     onClickBack: () -> Unit,
     viewModel: MateriViewModel = viewModel(
         factory = MainViewModelFactory(Injection.provideMainRepository(context))
@@ -74,6 +81,48 @@ fun MateriScreen (
 ) {
     var isRecording by remember {
         mutableStateOf(false)
+    }
+
+    var isCorrect by remember {
+        mutableStateOf(false)
+    }
+
+    var isIncorrect by remember {
+        mutableStateOf(false)
+    }
+
+    var isError by remember {
+        mutableStateOf(false)
+    }
+
+    var isLoading by remember {
+        mutableStateOf(false)
+    }
+    
+    var showDialog by remember {
+        mutableStateOf(false)
+    }
+
+    val predictionResult by viewModel.predictionResult.collectAsState()
+
+    when (val result = predictionResult) {
+        is Result.Success -> {
+            if (result.data == "Correct answer") {
+                isCorrect = true
+            } else {
+                isIncorrect = true
+            }
+            isLoading = false
+        }
+        is Result.Error -> {
+            result.error.getContentIfNotHandled()?.let {
+                isError = true
+            }
+            isLoading = false
+        }
+        is Result.Loading -> {
+            isLoading = result.isLoading
+        }
     }
     
     val requestPermissionLauncher =
@@ -93,7 +142,7 @@ fun MateriScreen (
         }
 
 
-    fun checkPermissionAndStartStopRecording() {
+    fun checkPermissionAndStartStopRecording(caraEja: String, done: Boolean) {
         when {
             ContextCompat.checkSelfPermission(
                 context,
@@ -101,6 +150,7 @@ fun MateriScreen (
             ) == PackageManager.PERMISSION_GRANTED -> {
                 if (isRecording) {
                     viewModel.stopRecording()
+                    viewModel.postPrediction(caraEja, done,modulId)
                     isRecording = false
                 } else {
                     viewModel.startRecording(context = context)
@@ -112,6 +162,31 @@ fun MateriScreen (
             }
         }
     }
+    
+    DisposableEffect(isLoading, isCorrect, isIncorrect, isError) {
+        onDispose {
+            showDialog = isLoading || isCorrect || isIncorrect || isError
+        }
+    }
+
+
+    if (showDialog) {
+        MateriDialog(
+            isLoading = isLoading,
+            isCorrect = isCorrect,
+            isIncorrect = isIncorrect,
+            isError = isError,
+            onOkayClick = {
+                isLoading  = false
+                isCorrect = false
+                isIncorrect = false
+                isError = false
+                showDialog = false
+            }
+        )
+    }
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -222,74 +297,47 @@ fun MateriScreen (
                     ) {
                         val sudahPernah = nomor < (totalCompleted ?: 0)
                         if (sudahPernah) {
-                            Button(onClick = { /*TODO*/ }, modifier = Modifier.align(Alignment.BottomEnd)) {
-                                Text(text = "Lanjut")
+                            if (nomor != 1) {
+                                IconButton(
+                                    onClick = { onPrevNextMateriClick(nomor-1,modulId,namaModul) },
+                                    modifier = Modifier
+                                        .align(Alignment.CenterStart)
+                                        .wrapContentSize()
+                                        .padding(end = 24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.ArrowCircleLeft,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(40.dp),
+                                        tint = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
+                            }
+                            IconButton(
+                                onClick = { onPrevNextMateriClick(nomor+1,modulId,namaModul) },
+                                modifier = Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .wrapContentSize()
+                                    .padding(end = 24.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.ArrowCircleRight,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(40.dp),
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
                             }
                         }
                         if (getProgressLoading || updateProgressLoading) {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }
-
-
-                        // BUAT TEST RECORD AUDIO
-                        Button(
-                            onClick = { checkPermissionAndStartStopRecording() },
-                            modifier = Modifier.align(Alignment.TopStart)
-                        ) {
-                            if (isRecording) {
-                                Text(text = "Stop Record")
-                            } else {
-                                Text(text = "Start Record")
-                            }
-                        }
-
-                        Text(
-                            text = if (viewModel.recordedFilePath.isNullOrEmpty()) "Kosong" else viewModel.recordedFilePath!!,
-                            modifier = Modifier.align(Alignment.TopCenter)
-                        )
-
-                        Button(
-                            onClick = {
-                                      if (viewModel.recordedFilePath.isNullOrEmpty()) {
-                                          // do nothin
-                                      } else {
-                                          val mPlayer = MediaPlayer()
-                                          mPlayer.setDataSource(viewModel.recordedFilePath)
-                                          mPlayer.prepare()
-                                          mPlayer.start()
-                                      }
-                            },
-                            modifier = Modifier.align(Alignment.TopEnd)
-                        ) {
-                            if (viewModel.recordedFilePath.isNullOrEmpty()) {
-                                Text(text = "Disabled")
-                            } else {
-                                Text(text = "Play")
-                            }
-                        }
                         
                         Button(
                             onClick = {
-                                //api.Evaluate(sudahPernah)
-                                if (sudahPernah) {
-                                    // Evaluate
-                                    // Notify user
-                                    // api.evaluate()
-                                } else {
-                                    // Evaluate
-                                    // Notify user
-                                    // api.evaluate()
-                                    val response = listOf<Boolean>(true,false).random()
-                                    if (response) {
-                                        viewModel.updateProgress(modulId)
-                                        Toast.makeText(context,"Evaluasi benar",Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        Toast.makeText(context,"Evaluasi salah",Toast.LENGTH_SHORT).show()
-                                    }
-                                }
+                                      checkPermissionAndStartStopRecording(data.caraEja.lowercase(), nomor <= totalCompleted!!)
                             },
                             modifier = Modifier
-                                .align(Alignment.BottomCenter)
+                                .align(Alignment.Center)
                                 .height(40.dp)
                                 .fillMaxWidth()
                                 .padding(horizontal = 100.dp),
@@ -298,23 +346,44 @@ fun MateriScreen (
                                 defaultElevation = 10.dp
                             )
                         ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxSize(),
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Mic,
-                                    contentDescription = null,
-                                    tint = Color.White,
+                            if (isRecording) {
+                                Row(
                                     modifier = Modifier
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "Giliran kamu",
-                                    fontWeight = FontWeight.SemiBold
-                                )
+                                        .fillMaxSize(),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.StopCircle,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Berhenti Record",
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+                            } else {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxSize(),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Mic,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = if (viewModel.recordedFilePath == null) "Giliran kamu" else "Record Ulang",
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
                             }
                         }
                     }

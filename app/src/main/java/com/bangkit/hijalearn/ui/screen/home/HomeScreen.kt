@@ -53,11 +53,19 @@ import com.bangkit.hijalearn.MainViewModelFactory
 import com.bangkit.hijalearn.R
 import com.bangkit.hijalearn.data.UiState
 import com.bangkit.hijalearn.data.local.database.Modul
+import com.bangkit.hijalearn.data.pref.UserPreference
+import com.bangkit.hijalearn.data.pref.dataStore
 import com.bangkit.hijalearn.data.remote.repository.MainRepository
+import com.bangkit.hijalearn.data.remote.response.ModuleItem
+import com.bangkit.hijalearn.data.remote.response.ProgressResponse
 import com.bangkit.hijalearn.di.Injection
 import com.bangkit.hijalearn.model.User
 import com.bangkit.hijalearn.ui.component.ModulItem
 import com.bangkit.hijalearn.ui.component.SectionText
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun HomeScreen (
@@ -67,7 +75,7 @@ fun HomeScreen (
         factory = MainViewModelFactory(Injection.provideMainRepository(context))
     )
 ) {
-    val user = viewModel.getSession().collectAsState(initial = User("","","","",false))
+    val user = Firebase.auth.currentUser
     val namaModulState = remember {
         mutableStateOf("")
     }
@@ -111,7 +119,7 @@ fun HomeScreen (
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "Assalamu'alaykum " + user.value.username
+                    text = "Assalamu'alaykum " + user?.displayName
                 )
                 Spacer(modifier = Modifier.height(7.dp))
                 Text(
@@ -126,7 +134,7 @@ fun HomeScreen (
         SectionText(title = "Materi yang harus kamu pelajari!")
         Spacer(modifier = Modifier.height(10.dp))
         // Setup Card Progress
-        viewModel.progessState.collectAsState(initial = UiState.Loading).value.let {
+        viewModel.progessState.collectAsState(initial = UiState.Loading).value.let { it ->
             when(it){
                 is UiState.Loading -> {
                     Card (
@@ -151,8 +159,9 @@ fun HomeScreen (
                 }
                 is UiState.Success -> {
                     val data = it.data
-                    val progress = data.modulProgress.find { it.modulId == data.lastModulAccesId }
-                    CardProgressContent(data = data, progress = progress, namaModulState = namaModulState)
+                    val module = data.module
+                    val progress = module.find { it.moduleId == data.lastModule }
+                    CardProgressContent(data = data, progress = progress!!, namaModulState = namaModulState)
                 }
                 is UiState.Error -> {
 
@@ -218,8 +227,8 @@ fun ListModul(
 
 @Composable
 fun CardProgressContent(
-    data: MainRepository.TesProgressResponse,
-    progress: MainRepository.TesModulProgress?,
+    data: ProgressResponse,
+    progress: ModuleItem,
     namaModulState: MutableState<String>,
 ) {
     Card (
@@ -234,70 +243,64 @@ fun CardProgressContent(
             defaultElevation = 10.dp
         )
     ) {
-        if (progress == null) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Text(text = "Kamu belum ambil kelas", modifier = Modifier.align(
-                    Alignment.Center))
-            }
-        } else {
-            val percent = ((progress.totalCompletedSubmodul.toDouble() / progress.totalSubmodul.toDouble())*100).toInt()
-            val namaModul = namaModulState.value
-            Row(
+        //            val percent = ((progress.totalCompletedSubmodul.toDouble() / progress.totalSubmodul.toDouble())*100).toInt()
+        val percent = ((progress.subModuleDone.toDouble() / progress.totalSubModule.toDouble()) * 100).toInt()
+        val namaModul = namaModulState.value
+        Row(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
                 modifier = Modifier
-                    .fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxHeight()
+                    .weight(0.6f)
+                    .padding(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(0.6f)
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Modul ${data.lastModulAccesId}",
-                        fontWeight = Bold,
-                        fontSize = 24.sp
-                    )
-                    Text(
-                        text = "Belajar $namaModul",
-                        fontWeight = SemiBold,
-                        fontSize = 16.sp
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "Kamu akan belajar tentang pengenalan dan pengucapan huruf hijaiyah/Dummy",
-                        fontSize = 16.sp
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .weight(0.4f)
-                ) {
-                    Canvas(modifier = Modifier.size(100.dp), onDraw = {
-                        drawCircle(color =
-                        if (percent in 0..33) {
-                            Color.Red
-                        } else if (percent in 34..66) {
-                            Color.Yellow
-                        } else {
-                            Color.Green
-                        }
-
-                        )
-                    })
-                    Text(
-                        text = "$percent%",
-                        color = Color.White,
-                        fontSize = 24.sp,
-                        fontWeight = SemiBold,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                    )
-                }
-
+                Text(
+                    text = "Modul ${data.lastModule}",
+                    fontWeight = Bold,
+                    fontSize = 24.sp
+                )
+                Text(
+                    text = "Belajar $namaModul",
+                    fontWeight = SemiBold,
+                    fontSize = 16.sp
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "Kamu akan belajar tentang pengenalan dan pengucapan huruf hijaiyah/Dummy",
+                    fontSize = 16.sp
+                )
             }
+            Box(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .weight(0.4f)
+            ) {
+                Canvas(modifier = Modifier.size(100.dp), onDraw = {
+                    drawCircle(color =
+                    if (percent in 0..33) {
+                        Color.Red
+                    } else if (percent in 34..66) {
+                        Color.Yellow
+                    } else {
+                        Color.Green
+                    }
+
+                    )
+                })
+                Text(
+                    text = "$percent%",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    fontWeight = SemiBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                )
+            }
+
         }
     }
 }

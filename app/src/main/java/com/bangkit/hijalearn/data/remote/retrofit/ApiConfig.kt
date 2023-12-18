@@ -1,10 +1,20 @@
 package com.bangkit.hijalearn.data.remote.retrofit
 
 import android.content.Context
+import android.util.Log
 import com.bangkit.hijalearn.data.pref.UserPreference
 import com.bangkit.hijalearn.data.pref.dataStore
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.auth
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -28,13 +38,15 @@ object ApiConfig {
         return retrofit.create(ApiService::class.java)
     }
 
-    fun getAuthApiService(context: Context): ApiService {
+    fun getAuthApiService(): ApiService {
         val loggingInterceptor = HttpLoggingInterceptor()
             .setLevel(HttpLoggingInterceptor.Level.BODY)
 
+        val authInterceptor = AuthInterceptor()
+
         val client: OkHttpClient = OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
-            .addInterceptor(AuthInterceptor(context))
             .build()
 
         val retrofit = Retrofit.Builder()
@@ -65,17 +77,29 @@ object ApiConfig {
     }
 }
 
-class AuthInterceptor(private val context: Context): Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val userPref = UserPreference.getInstance(context.dataStore)
-        val user = runBlocking { userPref.getSession().first() }
-        val bearerToken = "Bearer ${user.token}"
+class AuthInterceptor(): Interceptor {
+    private suspend fun getUserToken(user: FirebaseUser): String? {
+        return try {
+            user.getIdToken(true).await().token
+        } catch (e: Exception) {
+            null
+        }
+    }
+    override fun intercept(chain: Interceptor.Chain): Response = runBlocking {
+        val user = Firebase.auth.currentUser
+        val token = user?.let { getUserToken(it) }
 
-        val req = chain.request()
-        val requestHeaders = req.newBuilder()
-            .addHeader("Authorization", bearerToken)
-            .build()
+        if (token != null) {
+            val bearerToken = "Bearer $token"
 
-        return chain.proceed(requestHeaders)
+            val req = chain.request()
+            val requestHeaders = req.newBuilder()
+                .addHeader("Authorization", bearerToken)
+                .build()
+
+            chain.proceed(requestHeaders)
+        } else {
+            chain.proceed(chain.request())
+        }
     }
 }

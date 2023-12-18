@@ -1,21 +1,13 @@
 package com.bangkit.hijalearn
 
-import android.Manifest
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
@@ -32,10 +24,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.app.ActivityCompat
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -186,6 +176,11 @@ fun HijaLearnApp(
                     nomor = nomor!!,
                     modulId = modulId!!,
                     namaModul = namaModul!!,
+                    onPrevNextMateriClick = {materiId, modulId, namaModul ->
+                        navController.navigate(Screen.Materi.createRoute(materiId,modulId,Uri.decode(namaModul))){
+                            popUpTo(Screen.ToListMateri.route)
+                        }
+                    },
                     onClickBack = {
                         navController.navigateUp()
                     }

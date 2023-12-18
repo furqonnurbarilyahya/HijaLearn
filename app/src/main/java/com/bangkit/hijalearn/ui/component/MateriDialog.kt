@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -38,7 +37,8 @@ fun MateriDialog(
     isLoading: Boolean,
     isCorrect: Boolean,
     isIncorrect: Boolean,
-    isError: Boolean
+    isError: Boolean,
+    onOkayClick: () -> Unit
 ) {
     val iconImage = if (isCorrect) {
         Icons.Filled.CheckCircle
@@ -52,33 +52,27 @@ fun MateriDialog(
         Color.Green
     } else if (isError){
         Color.Red
-    } else if (isIncorrect) {
+    } else  {
         Color.Red
-    } else {
-        MaterialTheme.colorScheme.primary
     }
 
     val headerMessage = if (isCorrect) {
         "Jawaban Benar"
     } else if (isError){
         "Gagal"
-    } else if (isIncorrect) {
+    } else  {
         "Jawaban Salah"
-    } else {
-        "Memuat"
     }
 
     val bodyMessage = if (isCorrect) {
         "Pengucapanmu sudah benar"
     } else if (isError){
         "Terjadi kesalahan"
-    } else if (isIncorrect) {
+    } else  {
         "Pengucapanmu masih salah"
-    } else {
-        "Mengevaluasi jawaban..."
     }
 
-    Dialog(onDismissRequest = { /*TODO*/ }) {
+    Dialog(onDismissRequest = { onOkayClick() }) {
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = Color.White,
@@ -93,7 +87,7 @@ fun MateriDialog(
                     Box(
                         modifier = Modifier
                             .background(
-                                colorHeader
+                               MaterialTheme.colorScheme.primary
                             )
                             .fillMaxWidth()
                             .padding(vertical = 32.dp)
@@ -130,16 +124,28 @@ fun MateriDialog(
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    Text(
-                        text = headerMessage,
-                        fontSize = 24.sp,
-                    )
+                    if (!isLoading) {
+                        Text(
+                            text = headerMessage,
+                            fontSize = 24.sp,
+                        )
+                    } else {
+                        Text(
+                            text = "Memuat",
+                            fontSize = 24.sp,
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = bodyMessage)
+                    if (!isLoading) {
+                        Text(text = bodyMessage)
+                    } else {
+                        Text(text = "Mengevaluasi jawaban...")
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     if (!isLoading) {
                         Button(
-                            onClick = { /*TODO*/ },
+                            onClick = { onOkayClick() },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 contentColor = Color.White
@@ -162,7 +168,8 @@ fun MateriDialogPreview() {
             isLoading = false,
             isCorrect = true,
             isIncorrect = false,
-            isError = false
+            isError = false,
+            onOkayClick = {}
         )
     }
 }

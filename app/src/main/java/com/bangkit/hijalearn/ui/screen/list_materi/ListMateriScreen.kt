@@ -49,12 +49,7 @@ fun ListMateriScreen(
     )
 ) {
 
-    val currentProgress = remember {
-        viewModel.countMateriSelesaiByModul(modulId)
-    }
-
     val totalCompleted by viewModel.totalCompleted.collectAsState()
-
 
     Column(
         modifier = Modifier
@@ -114,12 +109,11 @@ fun ListMateriScreen(
                         items(items = data, key = { it.id }) { materi ->
                             MateriItem(
                                 materi = materi,
-                                accesable = materi.nomor <= (totalCompleted ?: 0),
+                                accesable = materi.nomor <= totalCompleted!! || materi.nomor == 1,
                                 modifier = Modifier.clickable {
-                                    if (materi.nomor <= (totalCompleted?:0)) {
+                                    if (materi.nomor <= totalCompleted!! || materi.nomor == 1) {
                                         navigateToMateri(materi.nomor, modulId, namaModul)
                                     }
-//                                    navigateToMateri(materi.nomor,modulId,namaModul)
                                 }
                             )
                         }
