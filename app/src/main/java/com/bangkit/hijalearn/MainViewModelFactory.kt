@@ -6,6 +6,7 @@ import com.bangkit.hijalearn.data.remote.repository.MainRepository
 import com.bangkit.hijalearn.data.remote.repository.WelcomeRepository
 import com.bangkit.hijalearn.ui.screen.allmaterial.AllMaterialViewModel
 import com.bangkit.hijalearn.ui.screen.alquran.AlQuranViewModel
+import com.bangkit.hijalearn.ui.screen.doa.DoaViewModel
 import com.bangkit.hijalearn.ui.screen.home.HomeViewModel
 import com.bangkit.hijalearn.ui.screen.introduction.IntroductionViewModel
 import com.bangkit.hijalearn.ui.screen.list_materi.ListMateriViewModel
@@ -32,6 +33,8 @@ class MainViewModelFactory(private val mainRepository: MainRepository): ViewMode
             return SurahViewModel(mainRepository) as T
         } else if (modelClass.isAssignableFrom(AllMaterialViewModel::class.java)) {
             return AllMaterialViewModel(mainRepository) as T
+        } else if (modelClass.isAssignableFrom(DoaViewModel::class.java)) {
+            return DoaViewModel(mainRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
     }

@@ -47,6 +47,7 @@ import com.bangkit.hijalearn.navigation.Screen
 import com.bangkit.hijalearn.ui.screen.allmaterial.AllMaterialScreen
 import com.bangkit.hijalearn.ui.screen.alquran.AlQuranScreen
 import com.bangkit.hijalearn.ui.screen.detail_profile.DetailProfileScreen
+import com.bangkit.hijalearn.ui.screen.doa.DoaScreen
 import com.bangkit.hijalearn.ui.screen.home.HomeScreen
 import com.bangkit.hijalearn.ui.screen.introduction.IntroductionScreen
 import com.bangkit.hijalearn.ui.screen.list_materi.ListMateriScreen
@@ -248,6 +249,9 @@ fun HijaLearnApp(
             composable(Screen.AllMateri.route) {
                 AllMaterialScreen(context)
             }
+            composable(Screen.Doa.route) {
+                DoaScreen(context)
+            }
         }
     }
 }
@@ -280,10 +284,15 @@ fun BottomBar(
                 screen = Screen.AlQuran
             ),
             BottomBarItem(
+                title = "Do'a",
+                icon = Icons.Outlined.Book,
+                screen = Screen.Doa
+            ),
+            BottomBarItem(
                 title = "Profil",
                 icon = Icons.Outlined.Person,
                 screen = Screen.Profile
-            ),
+            )
         )
         navigationItems.map {
             NavigationBarItem(

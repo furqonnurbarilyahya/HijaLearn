@@ -63,6 +63,23 @@ object ApiConfig {
 
         return retrofit.create(ApiService::class.java)
     }
+
+    fun getDoaApiService(): ApiService {
+        val loggingInterceptor = HttpLoggingInterceptor()
+            .setLevel(HttpLoggingInterceptor.Level.BODY)
+
+        val client: OkHttpClient = OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://doa-doa-api-ahmadramadhan.fly.dev/")
+            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
+        return retrofit.create(ApiService::class.java)
+    }
 }
 
 class AuthInterceptor(private val context: Context): Interceptor {

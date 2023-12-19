@@ -1,5 +1,6 @@
 package com.bangkit.hijalearn.data.remote.retrofit
 
+import com.bangkit.hijalearn.model.DoaResponseItem
 import com.bangkit.hijalearn.model.ListSurahResponseItem
 import com.bangkit.hijalearn.model.SurahResponse
 import com.bangkit.hijalearn.model.SurahResponseItem
@@ -24,6 +25,9 @@ interface ApiService {
 
     @GET("99c279bb173a6e28359c/surat/{id}")
     suspend fun getSurahById(@Path("id") id: String): List<SurahResponseItem>
+
+    @GET("api")
+    suspend fun getDoa(): List<DoaResponseItem>
 
 
 

@@ -9,6 +9,7 @@ import com.bangkit.hijalearn.data.local.database.ModuleDatabase
 import com.bangkit.hijalearn.data.local.database.Pendahuluan
 import com.bangkit.hijalearn.data.pref.UserPreference
 import com.bangkit.hijalearn.data.remote.retrofit.ApiService
+import com.bangkit.hijalearn.model.DoaResponseItem
 import com.bangkit.hijalearn.model.ListSurahResponseItem
 import com.bangkit.hijalearn.model.SurahResponse
 import com.bangkit.hijalearn.model.SurahResponseItem
@@ -25,7 +26,8 @@ class MainRepository(
     private val apiService: ApiService,
     private val userPreference: UserPreference,
     private val moduleDatabase: ModuleDatabase,
-    private val alQuranApiService: ApiService
+    private val alQuranApiService: ApiService,
+    private val doaApiService: ApiService
 ) {
     private val moduleDao = moduleDatabase.moduleDao()
 
@@ -176,6 +178,19 @@ class MainRepository(
         Log.d("AYAT", "${_listAyatState.value.toString()}")
     }
 
+    //UiState List Doa
+    private val _listDoaState: MutableStateFlow<UiState<List<DoaResponseItem>>> = MutableStateFlow(UiState.Loading)
+
+    val listDoaState: StateFlow<UiState<List<DoaResponseItem>>> get() = _listDoaState
+
+    suspend fun getDoa() {
+        try {
+            _listDoaState.value = UiState.Success(doaApiService.getDoa())
+        } catch (e: Exception) {
+            _listDoaState.value = UiState.Error(e.message.toString())
+        }
+    }
+
     data class TesModulProgress(
         val modulId: Int,
         val completed: Boolean = false,
@@ -194,11 +209,12 @@ class MainRepository(
             apiService: ApiService,
             userPreference: UserPreference,
             moduleDatabase: ModuleDatabase,
-            alQuranApiService: ApiService
+            alQuranApiService: ApiService,
+            doaApiService: ApiService
 
         ): MainRepository =
             instance ?: synchronized(this) {
-                instance ?: MainRepository(apiService, userPreference,moduleDatabase, alQuranApiService)
+                instance ?: MainRepository(apiService, userPreference,moduleDatabase, alQuranApiService, doaApiService)
             }.also { instance = it }
     }
 }
