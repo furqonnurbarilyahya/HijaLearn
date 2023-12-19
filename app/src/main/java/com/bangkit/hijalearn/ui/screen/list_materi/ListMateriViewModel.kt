@@ -1,15 +1,8 @@
 package com.bangkit.hijalearn.ui.screen.list_materi
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bangkit.hijalearn.data.UiState
-import com.bangkit.hijalearn.data.local.database.Materi
 import com.bangkit.hijalearn.data.remote.repository.MainRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ListMateriViewModel(private val repository: MainRepository): ViewModel() {
@@ -17,12 +10,17 @@ class ListMateriViewModel(private val repository: MainRepository): ViewModel() {
 
     val listMateriState = repository.listMateriState
 
-    val totalCompleted = repository.totalCompleted
+    val singleProgress = repository.singleProgressState
 
-    fun getAllMateriWithModulByModulId(modulId: Int) {
+    fun getAllMateriByModulId(modulId: Int) {
         viewModelScope.launch {
             repository.getAllMateriByModulId(modulId)
-            repository.getTotalCompletedSubModule(modulId)
+        }
+    }
+
+    fun getSingleProgress(modulId: Int) {
+        viewModelScope.launch {
+            repository.getSingleProgress(modulId)
         }
     }
 

@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -66,6 +67,7 @@ import com.bangkit.hijalearn.data.Result
 import com.bangkit.hijalearn.data.UiState
 import com.bangkit.hijalearn.di.Injection
 import com.bangkit.hijalearn.ui.component.MateriDialog
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun MateriScreen (
@@ -103,27 +105,32 @@ fun MateriScreen (
         mutableStateOf(false)
     }
 
-    val predictionResult by viewModel.predictionResult.collectAsState()
+    val totalCompleted by viewModel.totalCompleted.collectAsState()
 
-    when (val result = predictionResult) {
-        is Result.Success -> {
-            if (result.data == "Correct answer") {
-                isCorrect = true
-            } else {
-                isIncorrect = true
+//    val predictionResult by viewModel.predictionResult.collectAsState()
+    viewModel.predictionResult.collectAsState().value.let {
+        when (it) {
+            is Result.Success -> {
+                if (it.data == "Correct answer") {
+                    isCorrect = true
+                    viewModel.getSingleProgress(modulId)
+                } else {
+                    isIncorrect = true
+                }
+                isLoading = false
             }
-            isLoading = false
-        }
-        is Result.Error -> {
-            result.error.getContentIfNotHandled()?.let {
-                isError = true
+            is Result.Error -> {
+                it.error.getContentIfNotHandled()?.let {
+                    isError = true
+                }
+                isLoading = false
             }
-            isLoading = false
-        }
-        is Result.Loading -> {
-            isLoading = result.isLoading
+            is Result.Loading -> {
+                isLoading = it.isLoading
+            }
         }
     }
+
     
     val requestPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()){isGranted ->
@@ -177,11 +184,13 @@ fun MateriScreen (
             isIncorrect = isIncorrect,
             isError = isError,
             onOkayClick = {
-                isLoading  = false
-                isCorrect = false
-                isIncorrect = false
-                isError = false
-                showDialog = false
+                runBlocking {
+                    isLoading  = false
+                    isCorrect = false
+                    isIncorrect = false
+                    isError = false
+                    showDialog = false
+                }
             }
         )
     }
@@ -224,9 +233,6 @@ fun MateriScreen (
                 }
                 is UiState.Success -> {
                     val data = it.data
-                    val totalCompleted by viewModel.totalCompleted.collectAsState()
-                    val getProgressLoading by viewModel.getProgressLoading.collectAsState()
-                    val updateProgressLoading by viewModel.updateProgressLoading.collectAsState()
                     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
                     Spacer(modifier = Modifier.height(26.dp))
                     Card(
@@ -295,24 +301,8 @@ fun MateriScreen (
                             .padding(bottom = 32.dp)
                             .weight(0.15f)
                     ) {
-                        val sudahPernah = nomor < (totalCompleted ?: 0)
+                        val sudahPernah = nomor <= (totalCompleted ?: 0)
                         if (sudahPernah) {
-                            if (nomor != 1) {
-                                IconButton(
-                                    onClick = { onPrevNextMateriClick(nomor-1,modulId,namaModul) },
-                                    modifier = Modifier
-                                        .align(Alignment.CenterStart)
-                                        .wrapContentSize()
-                                        .padding(end = 24.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.ArrowCircleLeft,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(40.dp),
-                                        tint = MaterialTheme.colorScheme.secondary
-                                    )
-                                }
-                            }
                             IconButton(
                                 onClick = { onPrevNextMateriClick(nomor+1,modulId,namaModul) },
                                 modifier = Modifier
@@ -328,10 +318,22 @@ fun MateriScreen (
                                 )
                             }
                         }
-                        if (getProgressLoading || updateProgressLoading) {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        if (nomor != 1) {
+                            IconButton(
+                                onClick = { onPrevNextMateriClick(nomor-1,modulId,namaModul) },
+                                modifier = Modifier
+                                    .align(Alignment.CenterStart)
+                                    .wrapContentSize()
+                                    .padding(end = 24.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.ArrowCircleLeft,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(40.dp),
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
+                            }
                         }
-                        
                         Button(
                             onClick = {
                                       checkPermissionAndStartStopRecording(data.caraEja.lowercase(), nomor <= totalCompleted!!)

@@ -1,6 +1,7 @@
 package com.bangkit.hijalearn.data.remote.retrofit
 
 import com.bangkit.hijalearn.data.remote.response.ProgressResponse
+import com.bangkit.hijalearn.data.remote.response.SingleModuleProgressResponse
 import com.bangkit.hijalearn.model.ListSurahResponseItem
 import com.bangkit.hijalearn.model.SurahResponse
 import com.bangkit.hijalearn.model.SurahResponseItem
@@ -27,6 +28,11 @@ interface ApiService {
 
     @GET("progress")
     suspend fun getProgress(): ProgressResponse
+
+    @GET("progress/{modulId}")
+    suspend fun getSingleProgress(
+        @Path("modulId") modulId: Int
+    ): SingleModuleProgressResponse
 
     @Multipart
     @POST("prediction")

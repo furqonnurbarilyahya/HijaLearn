@@ -10,6 +10,7 @@ import com.bangkit.hijalearn.data.local.database.ModuleDatabase
 import com.bangkit.hijalearn.data.local.database.Pendahuluan
 import com.bangkit.hijalearn.data.pref.UserPreference
 import com.bangkit.hijalearn.data.remote.response.ProgressResponse
+import com.bangkit.hijalearn.data.remote.response.SingleModuleProgressResponse
 import com.bangkit.hijalearn.data.remote.retrofit.ApiService
 import com.bangkit.hijalearn.model.ListSurahResponseItem
 import com.bangkit.hijalearn.model.SurahResponse
@@ -39,6 +40,10 @@ class MainRepository(
     // UiState for progress
     private var _progressState = MutableStateFlow<UiState<ProgressResponse>>(UiState.Loading)
     val progressState : StateFlow<UiState<ProgressResponse>> get() = _progressState
+
+    // UiState for SingleModuleProgress
+    private var _singleProgressState = MutableStateFlow<UiState<SingleModuleProgressResponse>>(UiState.Loading)
+    val singleProgressState : StateFlow<UiState<SingleModuleProgressResponse>> get() = _singleProgressState
 
     // UiState list modul
     private var _allModulState = MutableStateFlow<UiState<List<Modul>>>(UiState.Loading)
@@ -120,21 +125,15 @@ class MainRepository(
                 )
             )
         )
-    private val fetch = MutableStateFlow<ProgressResponse?>(null)
-    val totalCompleted = MutableStateFlow<Int?>(0)
-    val getProgressLoading = MutableStateFlow(false)
-    val updateProgressLoading = MutableStateFlow(false)
+    val totalCompleted = MutableStateFlow<Int?>(null)
+
     suspend fun getProgress() {
         _progressState.value = UiState.Loading
-        getProgressLoading.value = true
         try {
             val success = UiState.Success(apiService.getProgress())
             _progressState.value = success
-            fetch.value = success.data
-            getProgressLoading.value = false
         } catch (e : Exception) {
             _progressState.value = UiState.Error("Something error")
-            getProgressLoading.value = false
         }
     }
 
@@ -145,20 +144,18 @@ class MainRepository(
         caraEja: RequestBody,
         moduleId: RequestBody,
         done: RequestBody
-    ) {
-        _predictionResult.value = Result.Loading(true)
-        try {
-            val success = apiService.postPrediction(audioFile, caraEja, moduleId, done)
-            _predictionResult.value = Result.Success(success)
-            Log.d("PREDICT",success)
-        } catch (e: Exception) {
-            _predictionResult.value = Result.Error(Event("Terjadi kesalahan"))
-            Log.d("PREDICT","Error")
-        }
+    ): String {
+        return apiService.postPrediction(audioFile, caraEja, moduleId, done)
     }
 
-    fun getTotalCompletedSubModule(modulId: Int) {
-        totalCompleted.value = fetch.value?.module?.find { it.moduleId == modulId }?.subModuleDone
+    suspend fun getSingleProgress(modulId: Int) {
+        try {
+            val success = apiService.getSingleProgress(modulId)
+            _singleProgressState.value = UiState.Success(success)
+            totalCompleted.value = success.subModuleDone
+        } catch (e: Exception) {
+            _singleProgressState.value = UiState.Error("Terjadi kesalahan")
+        }
     }
 
     //UIState List Surah

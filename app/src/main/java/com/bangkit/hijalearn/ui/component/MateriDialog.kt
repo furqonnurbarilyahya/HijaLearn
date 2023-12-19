@@ -72,7 +72,7 @@ fun MateriDialog(
         "Pengucapanmu masih salah"
     }
 
-    Dialog(onDismissRequest = { onOkayClick() }) {
+    Dialog(onDismissRequest = {  }) {
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = Color.White,

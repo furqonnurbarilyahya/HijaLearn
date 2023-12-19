@@ -17,9 +17,11 @@ import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bangkit.hijalearn.data.Result
 import com.bangkit.hijalearn.data.UiState
 import com.bangkit.hijalearn.data.local.database.Materi
 import com.bangkit.hijalearn.data.remote.repository.MainRepository
+import com.bangkit.hijalearn.util.Event
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -30,14 +32,19 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
 class MateriViewModel(private val repository: MainRepository): ViewModel() {
-    val predictionResult = repository.predictionResult
+    private val _predictionResult = MutableStateFlow<Result<String>>(Result.Loading(false))
+    val predictionResult: StateFlow<Result<String>> get() = _predictionResult
     val materiState = repository.materiState
     val totalCompleted = repository.totalCompleted
-    val getProgressLoading = repository.getProgressLoading
-    val updateProgressLoading = repository.updateProgressLoading
     fun getMateriByNomorAndModulId(nomor: Int,modulId: Int) {
         viewModelScope.launch {
             repository.getMateriByNomorAndModulId(nomor,modulId)
+        }
+    }
+
+    fun getSingleProgress(modulId: Int) {
+        viewModelScope.launch {
+            repository.getSingleProgress(modulId)
         }
     }
 
@@ -66,23 +73,29 @@ class MateriViewModel(private val repository: MainRepository): ViewModel() {
     }
 
     fun postPrediction(caraEja: String,done: Boolean, moduleId: Int) {
+        _predictionResult.value = Result.Loading(true)
         viewModelScope.launch {
+            try {
+                val audioFile = recordedFilePath?.let { File(it) }
 
-            val audioFile = recordedFilePath?.let { File(it) }
 
+                val requestAudioFile = audioFile?.asRequestBody("audio/wav".toMediaType())
+                val requestCaraEja = caraEja.toRequestBody("text/plain".toMediaType())
+                val requestDone = done.toString().toRequestBody("text/plain".toMediaType())
+                val requestModuleId = moduleId.toString().toRequestBody("text/plain".toMediaType())
 
-            val requestAudioFile = audioFile?.asRequestBody("audio/wav".toMediaType())
-            val requestCaraEja = caraEja.toRequestBody("text/plain".toMediaType())
-            val requestDone = done.toString().toRequestBody("text/plain".toMediaType())
-            val requestModuleId = moduleId.toString().toRequestBody("text/plain".toMediaType())
+                val multipartBody = MultipartBody.Part.createFormData(
+                    "audio",
+                    audioFile!!.name,
+                    requestAudioFile!!
+                )
 
-            val multipartBody = MultipartBody.Part.createFormData(
-                "audio",
-                audioFile!!.name,
-                requestAudioFile!!
-            )
+                val success = repository.postPrediction(multipartBody,requestCaraEja,requestModuleId,requestDone)
+                _predictionResult.value = Result.Success(success)
 
-            repository.postPrediction(multipartBody,requestCaraEja,requestModuleId,requestDone)
+            } catch (e: Exception) {
+                _predictionResult.value = Result.Error(Event("Terjadi kesalahan"))
+            }
         }
     }
 
