@@ -140,7 +140,9 @@ fun ProfileScreen(
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { }
+                        .clickable {
+                            navController.navigate(Screen.MyAccount.route)
+                        }
                         .padding(horizontal = 20.dp, vertical = 20.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
