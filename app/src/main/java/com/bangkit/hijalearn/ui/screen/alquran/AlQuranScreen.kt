@@ -115,7 +115,8 @@ fun AlQuranScreen(
                             SearchBar(
                                 onSearchTextChanged = {
                                     searchSurah = it
-                                }
+                                },
+                                placeHolder = "Cari Surah"
                             )
                         }
                     }

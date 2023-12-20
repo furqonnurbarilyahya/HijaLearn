@@ -4,9 +4,12 @@ import android.content.Context
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.Center
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -39,21 +42,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bangkit.hijalearn.MainViewModelFactory
+import com.bangkit.hijalearn.R
 import com.bangkit.hijalearn.data.UiState
 import com.bangkit.hijalearn.di.Injection
 import com.bangkit.hijalearn.model.DoaResponseItem
+import com.bangkit.hijalearn.ui.component.SearchBar
 
 @Composable
 fun DoaScreen(
     context: Context,
     doaViewModel: DoaViewModel = viewModel(factory = MainViewModelFactory(Injection.provideMainRepository(context)))
 ) {
+    var searchDoa by remember { mutableStateOf("") }
+
     doaViewModel.listDoaState.collectAsState(initial = UiState.Loading).value.let {
         when (it) {
             is UiState.Loading -> {
@@ -71,7 +79,44 @@ fun DoaScreen(
 
             is UiState.Success -> {
                 val doa = it.data
-                ListDoa(doaItem = doa)
+                Column (modifier = Modifier.fillMaxSize()) {
+                    Box {
+                        Image(
+                            painter = painterResource(id = R.drawable.bg_home),
+                            contentDescription = null
+                        )
+                        Column (
+                            modifier = Modifier.padding(top = 55.dp),
+                            horizontalAlignment = CenterHorizontally
+                        ){
+                            Text(
+                                text = "Doa Harian Muslim",
+                                color = Color.White,
+                                fontSize = 30.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(
+                                modifier = Modifier
+                                    .height(2.dp)
+                                    .padding(horizontal = 40.dp)
+                                    .fillMaxWidth()
+                                    .background(color = Color.White)
+                            )
+                            Spacer(modifier = Modifier.height(37.dp))
+                            SearchBar(
+                                onSearchTextChanged = {
+                                    searchDoa = it
+                                },
+                                placeHolder = "Cari Doa"
+                            )
+                        }
+                    }
+                    ListDoa(
+                        doaItem = doa,
+                        searchQuery = searchDoa
+                    )
+                }
+
             }
 
             else -> {}
@@ -165,12 +210,16 @@ fun ListDoaItem(
 
 @Composable
 fun ListDoa(
-    doaItem: List<DoaResponseItem>
+    doaItem: List<DoaResponseItem>,
+    searchQuery: String
 ) {
+    val filteredDoa = doaItem.filter {
+        it.doa.contains(searchQuery, ignoreCase = true)
+    }
     LazyColumn(
         modifier = Modifier.padding(10.dp)
     ){
-        items(doaItem) {
+        items(filteredDoa) {
             ListDoaItem(
                 doa = it.doa,
                 latin = it.latin,

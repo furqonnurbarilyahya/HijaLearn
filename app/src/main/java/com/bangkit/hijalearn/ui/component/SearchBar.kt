@@ -26,7 +26,10 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBar(onSearchTextChanged: (String) -> Unit) {
+fun SearchBar(
+    onSearchTextChanged: (String) -> Unit,
+    placeHolder: String
+) {
     var searchText by remember { mutableStateOf("") }
 
     OutlinedTextField(
@@ -40,7 +43,7 @@ fun SearchBar(onSearchTextChanged: (String) -> Unit) {
         },
         shape = RoundedCornerShape(16.dp),
         colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
-        placeholder = { Text("Cari Surah") },
+        placeholder = { Text(placeHolder) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
         singleLine = true,
     )
