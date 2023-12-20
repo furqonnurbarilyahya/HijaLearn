@@ -10,6 +10,7 @@ import com.bangkit.hijalearn.data.local.database.Pendahuluan
 import com.bangkit.hijalearn.data.pref.UserPreference
 import com.bangkit.hijalearn.data.remote.retrofit.ApiService
 import com.bangkit.hijalearn.model.DoaResponseItem
+import com.bangkit.hijalearn.model.ListSurahResponse
 import com.bangkit.hijalearn.model.ListSurahResponseItem
 import com.bangkit.hijalearn.model.SurahResponse
 import com.bangkit.hijalearn.model.SurahResponseItem
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import retrofit2.Call
 
 class MainRepository(
@@ -163,6 +165,17 @@ class MainRepository(
             _listSurahState.value = UiState.Error(e.message.toString())
         }
         Log.d("SURAH", "${_listSurahState.value.toString()}")
+    }
+
+    private val listSurah = mutableListOf<ListSurahResponseItem>()
+
+    fun getSurah(): List<ListSurahResponseItem> {
+        return listSurah
+    }
+    fun searchSurah(query: String): List<ListSurahResponseItem> {
+        return listSurah.filter {
+            it.nama.contains(query, ignoreCase = true)
+        }
     }
     
     //UIState List Ayat per Surah
