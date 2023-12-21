@@ -32,6 +32,7 @@ import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 @Composable
 fun MateriItem(
+    namaModul: String,
     materi: com.bangkit.hijalearn.data.local.database.Materi,
     accesable: Boolean,
     modifier: Modifier = Modifier
@@ -66,7 +67,7 @@ fun MateriItem(
                     .weight(0.8f)
             ) {
                 Text(
-                    text = "Huruf Hijaiyah ke-" + materi.nomor.toString(),
+                    text = "$namaModul ke-" + materi.nomor.toString(),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.ExtraBold
                 )

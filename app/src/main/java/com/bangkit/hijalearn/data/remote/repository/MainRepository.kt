@@ -9,6 +9,7 @@ import com.bangkit.hijalearn.data.local.database.Modul
 import com.bangkit.hijalearn.data.local.database.ModuleDatabase
 import com.bangkit.hijalearn.data.local.database.Pendahuluan
 import com.bangkit.hijalearn.data.pref.UserPreference
+import com.bangkit.hijalearn.data.remote.response.PredictionResponse
 import com.bangkit.hijalearn.data.remote.response.ProgressResponse
 import com.bangkit.hijalearn.data.remote.response.SingleModuleProgressResponse
 import com.bangkit.hijalearn.data.remote.retrofit.ApiService
@@ -53,9 +54,6 @@ class MainRepository(
     private val _pendahuluanState: MutableStateFlow<UiState<Pendahuluan>> = MutableStateFlow(UiState.Loading)
     val pendahuluanState: StateFlow<UiState<Pendahuluan>> get() = _pendahuluanState
 
-    // UiState list materi
-    private val _listMateriState: MutableStateFlow<UiState<List<Materi>>> = MutableStateFlow(UiState.Loading)
-    val listMateriState: StateFlow<UiState<List<Materi>>> get() = _listMateriState
 
     // UiState materi
     private val _materiState: MutableStateFlow<UiState<Materi>> = MutableStateFlow(UiState.Loading)
@@ -84,12 +82,8 @@ class MainRepository(
         }
     }
 
-    suspend fun getAllMateriByModulId(modulId: Int)  {
-        try {
-            _listMateriState.value = UiState.Success(moduleDao.getListMateriByModulId(modulId))
-        } catch (e: Exception) {
-            _listMateriState.value = UiState.Error(e.message.toString())
-        }
+    suspend fun getAllMateriByModulId(modulId: Int): List<Materi> {
+        return moduleDao.getListMateriByModulId(modulId)
     }
 
     suspend fun getMateriByNomorAndModulId(nomor: Int,modulId: Int) {
@@ -136,15 +130,12 @@ class MainRepository(
             _progressState.value = UiState.Error("Something error")
         }
     }
-
-    private val _predictionResult = MutableStateFlow<Result<String>>(Result.Loading(false))
-    val predictionResult: StateFlow<Result<String>> get() = _predictionResult
     suspend fun postPrediction(
         audioFile: MultipartBody.Part,
         caraEja: RequestBody,
         moduleId: RequestBody,
         done: RequestBody
-    ): String {
+    ): PredictionResponse {
         return apiService.postPrediction(audioFile, caraEja, moduleId, done)
     }
 

@@ -3,7 +3,10 @@ package com.bangkit.hijalearn.ui.screen.materi
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.media.AudioFormat
+import android.media.AudioRecord
 import android.media.MediaPlayer
+import android.media.MediaRecorder
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -57,6 +60,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -111,19 +115,21 @@ fun MateriScreen (
     viewModel.predictionResult.collectAsState().value.let {
         when (it) {
             is Result.Success -> {
-                if (it.data == "Correct answer") {
+                if (it.data.correct) {
                     isCorrect = true
                     viewModel.getSingleProgress(modulId)
                 } else {
                     isIncorrect = true
                 }
                 isLoading = false
+                viewModel.resetResult()
             }
             is Result.Error -> {
                 it.error.getContentIfNotHandled()?.let {
                     isError = true
                 }
                 isLoading = false
+                viewModel.resetResult()
             }
             is Result.Loading -> {
                 isLoading = it.isLoading
@@ -136,30 +142,32 @@ fun MateriScreen (
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()){isGranted ->
             if (isGranted) {
                 // Start
-                if (isRecording) {
-                    viewModel.stopRecording()
-                    isRecording = false
-                } else {
-                    viewModel.startRecording(context = context)
-                    isRecording = true
-                }
+                Toast.makeText(context,"Permission granted",Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context,"Permisi denied",Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,"Permission denied",Toast.LENGTH_SHORT).show()
             }
         }
 
 
     fun checkPermissionAndStartStopRecording(caraEja: String, done: Boolean) {
-        when {
+        when (PackageManager.PERMISSION_GRANTED) {
             ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.RECORD_AUDIO
-            ) == PackageManager.PERMISSION_GRANTED -> {
+            ) -> {
+
                 if (isRecording) {
-                    viewModel.stopRecording()
-                    viewModel.postPrediction(caraEja, done,modulId)
+                    viewModel.stopRecording(caraEja, done, modulId)
                     isRecording = false
                 } else {
+                    viewModel.audioRecord = AudioRecord(
+                        MediaRecorder.AudioSource.MIC,
+                        MateriViewModel.RECORDER_SAMPLE_RATE,
+                        AudioFormat.CHANNEL_IN_MONO,
+                        AudioFormat.ENCODING_PCM_16BIT,
+                        512
+                    )
+
                     viewModel.startRecording(context = context)
                     isRecording = true
                 }
@@ -255,8 +263,9 @@ fun MateriScreen (
                         ) {
                             Text(
                                 text = data.namaMateri,
-                                fontSize = 32.sp,
-                                fontWeight = FontWeight.SemiBold
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                textAlign = TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(42.dp))
                             AsyncImage(
@@ -302,7 +311,7 @@ fun MateriScreen (
                             .weight(0.15f)
                     ) {
                         val sudahPernah = nomor <= (totalCompleted ?: 0)
-                        if (sudahPernah) {
+                        if (sudahPernah && nomor != 29) {
                             IconButton(
                                 onClick = { onPrevNextMateriClick(nomor+1,modulId,namaModul) },
                                 modifier = Modifier
@@ -324,7 +333,7 @@ fun MateriScreen (
                                 modifier = Modifier
                                     .align(Alignment.CenterStart)
                                     .wrapContentSize()
-                                    .padding(end = 24.dp)
+                                    .padding(start = 24.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.ArrowCircleLeft,
@@ -382,7 +391,7 @@ fun MateriScreen (
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = if (viewModel.recordedFilePath == null) "Giliran kamu" else "Record Ulang",
+                                        text = "Giliran kamu",
                                         fontWeight = FontWeight.SemiBold
                                     )
                                 }

@@ -1,5 +1,6 @@
 package com.bangkit.hijalearn.data.remote.retrofit
 
+import com.bangkit.hijalearn.data.remote.response.PredictionResponse
 import com.bangkit.hijalearn.data.remote.response.ProgressResponse
 import com.bangkit.hijalearn.data.remote.response.SingleModuleProgressResponse
 import com.bangkit.hijalearn.model.ListSurahResponseItem
@@ -41,7 +42,7 @@ interface ApiService {
         @Part("caraEja") caraEja: RequestBody,
         @Part("moduleId") moduleId: RequestBody,
         @Part("done") done: RequestBody
-    ): String
+    ): PredictionResponse
 
     @GET("99c279bb173a6e28359c/data")
     suspend fun getListSurah(): List<ListSurahResponseItem>

@@ -8,7 +8,7 @@ data class PredictionResponse(
 	val correct: Boolean,
 
 	@field:SerializedName("probability")
-	val probability: Int,
+	val probability: Double,
 
 	@field:SerializedName("message")
 	val message: String

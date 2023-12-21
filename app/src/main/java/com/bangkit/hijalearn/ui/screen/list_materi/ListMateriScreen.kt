@@ -118,6 +118,7 @@ fun ListMateriScreen(
                                 ) {
                                     items(items = data, key = { it.id }) { materi ->
                                         MateriItem(
+                                            namaModul = namaModul,
                                             materi = materi,
                                             accesable = materi.nomor <= totalCompleted + 1 || materi.nomor == 1,
                                             modifier = Modifier.clickable {
