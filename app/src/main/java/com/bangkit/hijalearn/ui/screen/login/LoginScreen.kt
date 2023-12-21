@@ -166,18 +166,6 @@ fun LoginScreen(
                 }
             },
         )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 28.dp)
-        ) {
-            TextButton(
-                onClick = onClickRegister,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            ) {
-                Text(text = stringResource(R.string.forgot_password))
-            }
-        }
         Spacer(modifier = Modifier.padding(bottom = 15.dp))
         Button(
             onClick = {

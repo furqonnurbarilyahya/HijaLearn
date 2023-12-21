@@ -42,7 +42,6 @@ fun ModulItem(
     context: Context,
     modifier: Modifier = Modifier
 ) {
-    val image = context.resources.getIdentifier("modul_1_alif.png", "drawable", context.packageName)
     Card(
         modifier = modifier
             .width(200.dp)
@@ -61,7 +60,7 @@ fun ModulItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(100.dp),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.FillBounds
             )
             Spacer(modifier = Modifier.height(10.dp))
             Column (modifier = Modifier.padding(horizontal = 8.dp)) {

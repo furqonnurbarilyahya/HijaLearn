@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -78,6 +79,7 @@ import kotlinx.coroutines.runBlocking
 fun HomeScreen (
     context: Context,
     navigateToIntroduction: (Int,String,String) -> Unit,
+    navigateToAllMateri: () -> Unit,
     viewModel: HomeViewModel = viewModel(
         factory = MainViewModelFactory(Injection.provideMainRepository(context))
     )
@@ -96,12 +98,15 @@ fun HomeScreen (
             .verticalScroll(rememberScrollState())
     ) {
         Card (
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp),
             shape = RoundedCornerShape(bottomEnd = 24.dp, bottomStart = 24.dp)
         ) {
             Box(modifier = Modifier) {
                 Image(
                     painter = painterResource(id = R.drawable.bg_home),
+                    contentScale = ContentScale.Crop,
                     contentDescription = null,
                 )
                 Column(
@@ -135,7 +140,7 @@ fun HomeScreen (
                         fontSize = 16.sp,
                         color = Color.White
                     )
-                    Spacer(modifier = Modifier.height(15.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "Apakah sudah siap untuk belajar?",
                         fontWeight = FontWeight.SemiBold,
@@ -215,7 +220,11 @@ fun HomeScreen (
             horizontalArrangement = Arrangement.SpaceBetween
         ){
             SectionText(title = "Daftar Modul")
-            TextButton(onClick = {}) {
+            TextButton(
+                onClick = {
+                    navigateToAllMateri()
+                }
+            ) {
                 Text(
                     modifier = Modifier,
                     text = stringResource(R.string.view_all),
@@ -349,7 +358,7 @@ fun CardProgressContent(
                 })
                 Text(
                     text = "$percent%",
-                    color = Color.White,
+                    color = Color.Black,
                     fontSize = 24.sp,
                     fontWeight = SemiBold,
                     textAlign = TextAlign.Start,

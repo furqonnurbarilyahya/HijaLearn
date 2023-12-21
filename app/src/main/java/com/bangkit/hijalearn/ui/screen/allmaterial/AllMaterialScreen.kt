@@ -49,7 +49,7 @@ import com.bangkit.hijalearn.ui.component.ModulItem
 fun AllMaterialScreen(
     context: Context,
     modifier: Modifier = Modifier,
-//    navigateToIntroduction: (Int, String, String) -> Unit,
+    navigateToIntroduction: (Int, String, String) -> Unit,
     viewModel: AllMaterialViewModel = viewModel(
         factory = MainViewModelFactory(Injection.provideMainRepository(context))
     )
@@ -57,7 +57,7 @@ fun AllMaterialScreen(
     val moduleName = remember {
         mutableStateOf("")
     }
-    val module = viewModel.allModuleState.collectAsState(initial = UiState.Loading).value.let {
+    viewModel.allModuleState.collectAsState(initial = UiState.Loading).value.let {
         when (it) {
             is UiState.Loading -> {
                 viewModel.getAllModule()
@@ -65,7 +65,7 @@ fun AllMaterialScreen(
 
             is UiState.Success -> {
                 moduleName.value = it.data.first().namaModul
-                Column {
+                Column{
                     Box {
                         Image(
                             painter = painterResource(id = R.drawable.bg_home),
@@ -109,7 +109,7 @@ fun AllMaterialScreen(
                     ListAllModule(
                         context = context,
                         listModule = it.data,
-    //                    navigateToIntroduction = navigateToIntroduction
+                        navigateToIntroduction = navigateToIntroduction
                     )
                 }
             }
@@ -124,7 +124,7 @@ fun AllMaterialScreen(
 fun ListAllModule(
     context: Context,
     listModule: List<Modul>,
-//    navigateToIntroduction: (Int, String, String) -> Unit
+    navigateToIntroduction: (Int, String, String) -> Unit
 ) {
     LazyColumn (modifier = Modifier.padding(10.dp)) {
         items(listModule, key = { it.namaModul }) {
@@ -132,7 +132,7 @@ fun ListAllModule(
                 module = it,
                 context,
                 modifier = Modifier.clickable {
-//                    navigateToIntroduction(it.modulId, it.namaModul, it.deskripsi)
+                    navigateToIntroduction(it.modulId, it.namaModul, it.deskripsi)
                 }
             )
         }

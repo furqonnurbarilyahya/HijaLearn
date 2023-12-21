@@ -76,7 +76,7 @@ fun MateriItem(
                 )
             }
             AsyncImage(
-                model = if (accesable) materi.namaGambar else "https://media.istockphoto.com/id/936681148/vector/lock-icon.jpg?s=612x612&w=0&k=20&c=_0AmWrBagdcee-KDhBUfLawC7Gh8CNPLWls73lKaNVA=",
+                model = if (accesable) materi.namaGambar else R.drawable.lock_icon,
                 contentDescription = null,
                 modifier = Modifier
                     .size(55.dp)

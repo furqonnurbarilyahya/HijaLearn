@@ -111,6 +111,9 @@ fun HijaLearnApp(
                             Uri.decode(desc)
                         )
                         )
+                    },
+                    navigateToAllMateri = {
+                        navController.navigate(Screen.AllMateri.route)
                     }
                 )
             }
@@ -244,7 +247,17 @@ fun HijaLearnApp(
                 )
             }
             composable(Screen.AllMateri.route) {
-                AllMaterialScreen(context)
+                AllMaterialScreen(
+                    context = context,
+                    navigateToIntroduction = {id,namaModul,desc ->
+                        navController.navigate(Screen.Introduction.createRoute(
+                            id,
+                            Uri.decode(namaModul),
+                            Uri.decode(desc)
+                        )
+                        )
+                    }
+                )
             }
             composable(Screen.Doa.route) {
                 DoaScreen(context)
