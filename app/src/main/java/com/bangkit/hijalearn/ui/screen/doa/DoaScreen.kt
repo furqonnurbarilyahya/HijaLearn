@@ -1,6 +1,7 @@
 package com.bangkit.hijalearn.ui.screen.doa
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
@@ -65,7 +66,7 @@ fun DoaScreen(
     doaViewModel.listDoaState.collectAsState(initial = UiState.Loading).value.let {
         when (it) {
             is UiState.Loading -> {
-                Column (
+                Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Center,
                     horizontalAlignment = CenterHorizontally
@@ -79,16 +80,16 @@ fun DoaScreen(
 
             is UiState.Success -> {
                 val doa = it.data
-                Column (modifier = Modifier.fillMaxSize()) {
+                Column(modifier = Modifier.fillMaxSize()) {
                     Box {
                         Image(
                             painter = painterResource(id = R.drawable.bg_home),
                             contentDescription = null
                         )
-                        Column (
+                        Column(
                             modifier = Modifier.padding(top = 55.dp),
                             horizontalAlignment = CenterHorizontally
-                        ){
+                        ) {
                             Text(
                                 text = "Doa Harian Muslim",
                                 color = Color.White,
@@ -118,8 +119,9 @@ fun DoaScreen(
                 }
 
             }
-
-            else -> {}
+            else -> {
+                Toast.makeText(context, "Maaf, tidak ada koneksi internet", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }

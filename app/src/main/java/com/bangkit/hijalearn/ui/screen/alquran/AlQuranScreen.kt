@@ -1,6 +1,7 @@
 package com.bangkit.hijalearn.ui.screen.alquran
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -127,8 +128,9 @@ fun AlQuranScreen(
                     )
                 }
             }
-
-            else -> {}
+            else -> {
+                Toast.makeText(context, "Maaf, tidak ada koneksi internet", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
