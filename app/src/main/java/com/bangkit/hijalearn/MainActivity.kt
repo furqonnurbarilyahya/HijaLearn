@@ -1,5 +1,6 @@
 package com.bangkit.hijalearn
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -48,13 +49,19 @@ import com.bangkit.hijalearn.ui.screen.my_acccount.MyAccountScreen
 import com.bangkit.hijalearn.ui.screen.profile.ProfileScreen
 import com.bangkit.hijalearn.ui.screen.surah.SurahScreen
 import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 class MainActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             HijaLearnTheme {
-                HijaLearnApp()
+                HijaLearnApp(logout = {
+                    Firebase.auth.signOut()
+                    startActivity(Intent(this,WelcomeActivity::class.java))
+                    finish()
+                })
             }
         }
     }
@@ -64,6 +71,7 @@ class MainActivity: ComponentActivity() {
 @Composable
 fun HijaLearnApp(
     modifier: Modifier = Modifier,
+    logout: () -> Unit,
     navController: NavHostController = rememberNavController(),
 ) {
     val context = LocalContext.current
@@ -197,7 +205,7 @@ fun HijaLearnApp(
                 )
             }
             composable(Screen.Profile.route) {
-                ProfileScreen(navController)
+                ProfileScreen(navController,logout)
             }
             composable(Screen.DetailProfile.route) {
                 DetailProfileScreen(
@@ -343,6 +351,6 @@ fun BottomBar(
 @Composable
 fun JetHeroesAppPreview() {
     HijaLearnTheme {
-        HijaLearnApp()
+        HijaLearnApp(logout = {})
     }
 }
