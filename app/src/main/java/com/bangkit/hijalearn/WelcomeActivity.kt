@@ -43,9 +43,6 @@ class WelcomeActivity : ComponentActivity() {
 
         // Prepopulate Database
         val moduleDao = ModuleDatabase.getDatabase(this,applicationScope).moduleDao()
-//        applicationScope.launch {
-//            moduleDao.getAllModul()
-//        }
 
         val splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition { splashViewModel.isLoading.value }

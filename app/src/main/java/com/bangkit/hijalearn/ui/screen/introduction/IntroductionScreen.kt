@@ -31,8 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bangkit.hijalearn.MainViewModelFactory
-import com.bangkit.hijalearn.WelcomeViewModelFactory
-import com.bangkit.hijalearn.data.Result
 import com.bangkit.hijalearn.data.UiState
 import com.bangkit.hijalearn.data.local.database.Pendahuluan
 import com.bangkit.hijalearn.di.Injection

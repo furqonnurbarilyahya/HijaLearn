@@ -2,13 +2,7 @@ package com.bangkit.hijalearn.ui.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bangkit.hijalearn.data.local.database.Modul
-import com.bangkit.hijalearn.data.pref.UserPreference
 import com.bangkit.hijalearn.data.remote.repository.MainRepository
-import com.bangkit.hijalearn.model.User
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel(private val repository: MainRepository): ViewModel() {

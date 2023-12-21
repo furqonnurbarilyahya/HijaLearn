@@ -1,8 +1,5 @@
 package com.bangkit.hijalearn.data.remote.repository
 
-import android.util.Log
-import androidx.compose.runtime.mutableStateOf
-import com.bangkit.hijalearn.data.Result
 import com.bangkit.hijalearn.data.UiState
 import com.bangkit.hijalearn.data.local.database.Materi
 import com.bangkit.hijalearn.data.local.database.Modul
@@ -14,23 +11,14 @@ import com.bangkit.hijalearn.data.remote.response.ProgressResponse
 import com.bangkit.hijalearn.data.remote.response.SingleModuleProgressResponse
 import com.bangkit.hijalearn.data.remote.retrofit.ApiService
 import com.bangkit.hijalearn.model.DoaResponseItem
-import com.bangkit.hijalearn.model.ListSurahResponse
 import com.bangkit.hijalearn.model.ListSurahResponseItem
-import com.bangkit.hijalearn.model.SurahResponse
 import com.bangkit.hijalearn.model.SurahResponseItem
 import com.bangkit.hijalearn.model.User
-import com.bangkit.hijalearn.util.Event
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.Call
 
 class MainRepository(
     private val apiService: ApiService,
@@ -132,7 +120,6 @@ class MainRepository(
         } catch (e: Exception) {
             _listSurahState.value = UiState.Error(e.message.toString())
         }
-        Log.d("SURAH", "${_listSurahState.value.toString()}")
     }
 
     private val listSurah = mutableListOf<ListSurahResponseItem>()
@@ -156,7 +143,6 @@ class MainRepository(
         } catch (e: Exception) {
             _listAyatState.value = UiState.Error(e.message.toString())
         }
-        Log.d("AYAT", "${_listAyatState.value.toString()}")
     }
 
     //UiState List Doa

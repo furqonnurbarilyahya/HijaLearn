@@ -1,27 +1,10 @@
 package com.bangkit.hijalearn.ui.screen.materi
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import android.media.AudioFormat
 import android.media.AudioRecord
-import android.media.MediaRecorder
-import android.os.Build
-import android.util.Log
-import android.widget.Toast
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bangkit.hijalearn.data.Result
-import com.bangkit.hijalearn.data.UiState
-import com.bangkit.hijalearn.data.local.database.Materi
 import com.bangkit.hijalearn.data.remote.repository.MainRepository
 import com.bangkit.hijalearn.data.remote.response.PredictionResponse
 import com.bangkit.hijalearn.util.Event
@@ -65,7 +48,6 @@ class MateriViewModel(private val repository: MainRepository): ViewModel() {
     var recordingThread: Thread? = null
 
     fun startRecording(context: Context) {
-        Log.d("RECORD","Start Recording...")
 
         tempFile = File.createTempFile("audioToEval",".wav",context.externalCacheDir)
 
@@ -247,10 +229,8 @@ class MateriViewModel(private val repository: MainRepository): ViewModel() {
 
                 val success = repository.postPrediction(multipartBody,requestCaraEja,requestModuleId,requestDone)
                 _predictionResult.value = Result.Success(success)
-                Log.d("PREDICT","SUKSES")
             } catch (e: Exception) {
                 _predictionResult.value = Result.Error(Event("Terjadi kesalahan"))
-                Log.d("PREDICT",e.message.toString())
             }
         }
     }

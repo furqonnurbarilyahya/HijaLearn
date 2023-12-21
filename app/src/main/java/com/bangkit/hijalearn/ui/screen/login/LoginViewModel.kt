@@ -1,19 +1,13 @@
 package com.bangkit.hijalearn.ui.screen.login
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bangkit.hijalearn.data.remote.repository.WelcomeRepository
-import com.bangkit.hijalearn.data.Result
 import com.bangkit.hijalearn.model.User
-import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 

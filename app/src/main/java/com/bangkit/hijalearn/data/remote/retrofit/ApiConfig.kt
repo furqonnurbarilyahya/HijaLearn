@@ -1,20 +1,11 @@
 package com.bangkit.hijalearn.data.remote.retrofit
 
-import android.content.Context
-import android.util.Log
-import com.bangkit.hijalearn.data.pref.UserPreference
-import com.bangkit.hijalearn.data.pref.dataStore
+
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response

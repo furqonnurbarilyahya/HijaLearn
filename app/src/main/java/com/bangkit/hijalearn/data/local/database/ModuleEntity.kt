@@ -3,13 +3,9 @@ package com.bangkit.hijalearn.data.local.database
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.Relation
-import androidx.room.TypeConverter
-import androidx.room.TypeConverters
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+
 
 
 @Entity(tableName = "modul")

@@ -3,16 +3,13 @@ package com.bangkit.hijalearn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.bangkit.hijalearn.data.remote.repository.MainRepository
-import com.bangkit.hijalearn.data.remote.repository.WelcomeRepository
 import com.bangkit.hijalearn.ui.screen.allmaterial.AllMaterialViewModel
 import com.bangkit.hijalearn.ui.screen.alquran.AlQuranViewModel
 import com.bangkit.hijalearn.ui.screen.doa.DoaViewModel
 import com.bangkit.hijalearn.ui.screen.home.HomeViewModel
 import com.bangkit.hijalearn.ui.screen.introduction.IntroductionViewModel
 import com.bangkit.hijalearn.ui.screen.list_materi.ListMateriViewModel
-import com.bangkit.hijalearn.ui.screen.login.LoginViewModel
 import com.bangkit.hijalearn.ui.screen.materi.MateriViewModel
-import com.bangkit.hijalearn.ui.screen.register.RegisterViewModel
 import com.bangkit.hijalearn.ui.screen.surah.SurahViewModel
 
 class MainViewModelFactory(private val mainRepository: MainRepository): ViewModelProvider.NewInstanceFactory() {

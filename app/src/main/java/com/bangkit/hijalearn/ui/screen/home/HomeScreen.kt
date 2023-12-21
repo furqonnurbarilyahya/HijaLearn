@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -61,19 +60,13 @@ import com.bangkit.hijalearn.MainViewModelFactory
 import com.bangkit.hijalearn.R
 import com.bangkit.hijalearn.data.UiState
 import com.bangkit.hijalearn.data.local.database.Modul
-import com.bangkit.hijalearn.data.pref.UserPreference
-import com.bangkit.hijalearn.data.pref.dataStore
-import com.bangkit.hijalearn.data.remote.repository.MainRepository
 import com.bangkit.hijalearn.data.remote.response.ModuleItem
 import com.bangkit.hijalearn.data.remote.response.ProgressResponse
 import com.bangkit.hijalearn.di.Injection
-import com.bangkit.hijalearn.model.User
 import com.bangkit.hijalearn.ui.component.ModulItem
 import com.bangkit.hijalearn.ui.component.SectionText
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 
 @Composable
 fun HomeScreen (
