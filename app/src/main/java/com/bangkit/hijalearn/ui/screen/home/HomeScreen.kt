@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -43,6 +44,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -53,6 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.bangkit.hijalearn.MainViewModelFactory
 import com.bangkit.hijalearn.R
 import com.bangkit.hijalearn.data.UiState
@@ -96,26 +99,28 @@ fun HomeScreen (
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(bottomEnd = 24.dp, bottomStart = 24.dp)
         ) {
-            Box(modifier = Modifier){
+            Box(modifier = Modifier) {
                 Image(
                     painter = painterResource(id = R.drawable.bg_home),
                     contentDescription = null,
                 )
-                Column (
+                Column(
                     modifier = Modifier.padding(start = 16.dp, top = 18.dp, end = 16.dp)
                 ) {
-                    Row (
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween) {
-                        Image(
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        AsyncImage(
                             modifier = Modifier
+                                .width(45.dp)
                                 .height(45.dp)
-                                .width(45.dp),
-                            painter = painterResource(R.drawable.icon_category_espresso),
-                            contentDescription = null,
+                                .clip(RoundedCornerShape(5.dp)),
+                            model = if (user?.photoUrl == null) "https://assets-a1.kompasiana.com/items/album/2021/03/24/blank-profile-picture-973460-1280-605aadc08ede4874e1153a12.png?t=o&v=1200" else user.photoUrl,
+                            contentDescription = null
                         )
                         IconButton(
-                            onClick = { /*TODO*/ },
+                            onClick = {  },
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Notifications,
@@ -124,20 +129,20 @@ fun HomeScreen (
                             )
                         }
                     }
-                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Assalamu'alaykum " + user?.displayName,
+                        fontSize = 16.sp,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(15.dp))
+                    Text(
+                        text = "Apakah sudah siap untuk belajar?",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp,
+                        color = Color.White
+                    )
                 }
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "Assalamu'alaykum " + user?.displayName
-                )
-                Spacer(modifier = Modifier.height(7.dp))
-                Text(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "Ayo mulai perjalanan Belajarmu",
-                    fontWeight = SemiBold,
-                    fontSize = 20.sp
-                )
             }
         }
         Spacer(modifier = Modifier.height(15.dp))
