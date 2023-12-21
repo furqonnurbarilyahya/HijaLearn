@@ -1,8 +1,5 @@
 package com.bangkit.hijalearn.ui.screen.list_materi
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bangkit.hijalearn.data.UiState
@@ -15,14 +12,25 @@ import kotlinx.coroutines.launch
 class ListMateriViewModel(private val repository: MainRepository): ViewModel() {
     fun countMateriSelesaiByModul(modulId: Int) = repository.countMateriSelesaiByModul(modulId)
 
-    val listMateriState = repository.listMateriState
+    // UiState list materi
+    private val _listMateriState: MutableStateFlow<UiState<List<Materi>>> = MutableStateFlow(UiState.Loading)
+    val listMateriState: StateFlow<UiState<List<Materi>>> get() = _listMateriState
 
-    val totalCompleted = repository.totalCompleted
+    val singleProgress = repository.singleProgressState
 
-    fun getAllMateriWithModulByModulId(modulId: Int) {
+    fun getAllMateriByModulId(modulId: Int) {
         viewModelScope.launch {
-            repository.getAllMateriByModulId(modulId)
-            repository.getTotalCompletedSubModule(modulId)
+            try {
+                _listMateriState.value = UiState.Success(repository.getAllMateriByModulId(modulId))
+            } catch (e: Exception) {
+                _listMateriState.value = UiState.Error(e.message.toString())
+            }
+        }
+    }
+
+    fun getSingleProgress(modulId: Int) {
+        viewModelScope.launch {
+            repository.getSingleProgress(modulId)
         }
     }
 

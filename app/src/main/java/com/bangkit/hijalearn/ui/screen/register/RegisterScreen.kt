@@ -1,6 +1,7 @@
 package com.bangkit.hijalearn.ui.screen.register
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -75,10 +76,11 @@ fun RegisterScreen(
         is Result.Success -> {
             viewModel.resetLoading()
             viewModel.showSuccessDialog(onClickLogin)
+            viewModel.isEmailDuplicated = false
         }
         is Result.Error -> {
             state.error.getContentIfNotHandled()?.let {
-                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                viewModel.isEmailDuplicated = true
             }
             viewModel.resetLoading()
         }
@@ -139,7 +141,7 @@ fun RegisterScreen(
             value = viewModel.email,
             onValueChange = viewModel::onValueEmailChange,
             label = { Text(text = stringResource(R.string.email))},
-            isError = viewModel.isEmailEmpty || viewModel.isEmailNotValid,
+            isError = viewModel.isEmailEmpty || viewModel.isEmailNotValid || viewModel.isEmailDuplicated,
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Email,
@@ -152,6 +154,8 @@ fun RegisterScreen(
                     Text(text = "Email tidak boleh kosong", color = Color.Red)
                 } else if (viewModel.isEmailNotValid) {
                     Text(text = "Email tidak valid", color = Color.Red)
+                } else if (viewModel.isEmailDuplicated) {
+                    Text(text = "Email sudah diambil", color = Color.Red)
                 }
             }
         )

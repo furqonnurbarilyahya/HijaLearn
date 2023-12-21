@@ -3,6 +3,7 @@ package com.bangkit.hijalearn.ui.screen.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bangkit.hijalearn.data.local.database.Modul
+import com.bangkit.hijalearn.data.pref.UserPreference
 import com.bangkit.hijalearn.data.remote.repository.MainRepository
 import com.bangkit.hijalearn.model.User
 import kotlinx.coroutines.flow.Flow
@@ -23,9 +24,5 @@ class HomeViewModel(private val repository: MainRepository): ViewModel() {
             repository.getAllModule()
         }
     }
-    fun getSession() : Flow<User> {
-        return repository.getSession()
-    }
-
 
 }

@@ -2,12 +2,16 @@ package com.bangkit.hijalearn.data.remote.repository
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import com.bangkit.hijalearn.data.Result
 import com.bangkit.hijalearn.data.UiState
 import com.bangkit.hijalearn.data.local.database.Materi
 import com.bangkit.hijalearn.data.local.database.Modul
 import com.bangkit.hijalearn.data.local.database.ModuleDatabase
 import com.bangkit.hijalearn.data.local.database.Pendahuluan
 import com.bangkit.hijalearn.data.pref.UserPreference
+import com.bangkit.hijalearn.data.remote.response.PredictionResponse
+import com.bangkit.hijalearn.data.remote.response.ProgressResponse
+import com.bangkit.hijalearn.data.remote.response.SingleModuleProgressResponse
 import com.bangkit.hijalearn.data.remote.retrofit.ApiService
 import com.bangkit.hijalearn.model.DoaResponseItem
 import com.bangkit.hijalearn.model.ListSurahResponse
@@ -16,12 +20,17 @@ import com.bangkit.hijalearn.model.SurahResponse
 import com.bangkit.hijalearn.model.SurahResponseItem
 import com.bangkit.hijalearn.model.User
 import com.bangkit.hijalearn.model.dummyMateri
+import com.bangkit.hijalearn.util.Event
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Call
 
 class MainRepository(
@@ -34,8 +43,12 @@ class MainRepository(
     private val moduleDao = moduleDatabase.moduleDao()
 
     // UiState for progress
-    private var _progressState = MutableStateFlow<UiState<TesProgressResponse>>(UiState.Loading)
-    val progressState : StateFlow<UiState<TesProgressResponse>> get() = _progressState
+    private var _progressState = MutableStateFlow<UiState<ProgressResponse>>(UiState.Loading)
+    val progressState : StateFlow<UiState<ProgressResponse>> get() = _progressState
+
+    // UiState for SingleModuleProgress
+    private var _singleProgressState = MutableStateFlow<UiState<SingleModuleProgressResponse>>(UiState.Loading)
+    val singleProgressState : StateFlow<UiState<SingleModuleProgressResponse>> get() = _singleProgressState
 
     // UiState list modul
     private var _allModulState = MutableStateFlow<UiState<List<Modul>>>(UiState.Loading)
@@ -45,9 +58,6 @@ class MainRepository(
     private val _pendahuluanState: MutableStateFlow<UiState<Pendahuluan>> = MutableStateFlow(UiState.Loading)
     val pendahuluanState: StateFlow<UiState<Pendahuluan>> get() = _pendahuluanState
 
-    // UiState list materi
-    private val _listMateriState: MutableStateFlow<UiState<List<Materi>>> = MutableStateFlow(UiState.Loading)
-    val listMateriState: StateFlow<UiState<List<Materi>>> get() = _listMateriState
 
     // UiState materi
     private val _materiState: MutableStateFlow<UiState<Materi>> = MutableStateFlow(UiState.Loading)
@@ -76,12 +86,8 @@ class MainRepository(
         }
     }
 
-    suspend fun getAllMateriByModulId(modulId: Int)  {
-        try {
-            _listMateriState.value = UiState.Success(moduleDao.getListMateriByModulId(modulId))
-        } catch (e: Exception) {
-            _listMateriState.value = UiState.Error(e.message.toString())
-        }
+    suspend fun getAllMateriByModulId(modulId: Int): List<Materi> {
+        return moduleDao.getListMateriByModulId(modulId)
     }
 
     suspend fun getMateriByNomorAndModulId(nomor: Int,modulId: Int) {
@@ -117,40 +123,33 @@ class MainRepository(
                 )
             )
         )
-    val fetch = MutableStateFlow<TesProgressResponse?>(null)
-    val totalCompleted = MutableStateFlow<Int?>(0)
-    val getProgressLoading = MutableStateFlow(false)
-    val updateProgressLoading = MutableStateFlow(false)
+    val totalCompleted = MutableStateFlow<Int?>(null)
+
     suspend fun getProgress() {
         _progressState.value = UiState.Loading
-        getProgressLoading.value = true
-        delay(2000)
         try {
-            fetch.value = dummyProgressResponse
-            _progressState.value = UiState.Success(dummyProgressResponse)
-            getProgressLoading.value = false
+            val success = UiState.Success(apiService.getProgress())
+            _progressState.value = success
         } catch (e : Exception) {
             _progressState.value = UiState.Error("Something error")
         }
     }
-
-    suspend fun updateProgress(modulId: Int) {
-        updateProgressLoading.value = true
-        delay(3500)
-        try {
-            dummyProgressResponse.modulProgress.find { it.modulId == modulId }!!.totalCompletedSubmodul += 1
-            dummyProgressResponse.lastModulAccesId = modulId
-            getProgress()
-            getTotalCompletedSubModule(modulId)
-            updateProgressLoading.value = false
-        } catch (e: Exception) {
-            // Do error
-        }
+    suspend fun postPrediction(
+        audioFile: MultipartBody.Part,
+        caraEja: RequestBody,
+        moduleId: RequestBody,
+        done: RequestBody
+    ): PredictionResponse {
+        return apiService.postPrediction(audioFile, caraEja, moduleId, done)
     }
 
-    fun getTotalCompletedSubModule(modulId: Int) {
-        if (fetch != null) {
-             totalCompleted.value = fetch.value?.modulProgress?.find { it.modulId == modulId }?.totalCompletedSubmodul
+    suspend fun getSingleProgress(modulId: Int) {
+        try {
+            val success = apiService.getSingleProgress(modulId)
+            _singleProgressState.value = UiState.Success(success)
+            totalCompleted.value = success.subModuleDone
+        } catch (e: Exception) {
+            _singleProgressState.value = UiState.Error("Terjadi kesalahan")
         }
     }
 
