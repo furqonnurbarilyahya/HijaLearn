@@ -31,8 +31,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bangkit.hijalearn.R
 import com.bangkit.hijalearn.data.local.database.Modul
-import com.bangkit.hijalearn.model.Module
-import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 
 

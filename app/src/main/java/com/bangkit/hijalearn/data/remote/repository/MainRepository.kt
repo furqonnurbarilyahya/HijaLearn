@@ -19,7 +19,6 @@ import com.bangkit.hijalearn.model.ListSurahResponseItem
 import com.bangkit.hijalearn.model.SurahResponse
 import com.bangkit.hijalearn.model.SurahResponseItem
 import com.bangkit.hijalearn.model.User
-import com.bangkit.hijalearn.model.dummyMateri
 import com.bangkit.hijalearn.util.Event
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -73,11 +72,6 @@ class MainRepository(
             _allModulState.value = UiState.Error(e.message.toString())
         }
     }
-
-    fun countMateriSelesaiByModul(modulId: Int): Int {
-        val listMateri = dummyMateri.filter { it.modul == modulId }
-        return listMateri.count { it.selesai }
-    }
     suspend fun getPendahuluanById(modulId: Int) {
         try {
             _pendahuluanState.value = UiState.Success(moduleDao.getPendahuluanWithModulById(modulId))
@@ -98,31 +92,6 @@ class MainRepository(
         }
     }
 
-    // DUMMY PROGRESS LOGIC
-    var dummyProgressResponse =
-        TesProgressResponse(
-            1,
-            listOf(
-                TesModulProgress(
-                    1,
-                    false,
-                    28,
-                    1
-                ),
-                TesModulProgress(
-                    2,
-                    false,
-                    3,
-                    1
-                ),
-                TesModulProgress(
-                    3,
-                    false,
-                    3,
-                    1
-                )
-            )
-        )
     val totalCompleted = MutableStateFlow<Int?>(null)
 
     suspend fun getProgress() {
@@ -203,16 +172,6 @@ class MainRepository(
         }
     }
 
-    data class TesModulProgress(
-        val modulId: Int,
-        val completed: Boolean = false,
-        val totalSubmodul: Int,
-        var totalCompletedSubmodul: Int
-    )
-    data class TesProgressResponse(
-        var lastModulAccesId: Int,
-        val modulProgress: List<TesModulProgress>
-    )
 
     companion object {
         @Volatile

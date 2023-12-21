@@ -29,10 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.bangkit.hijalearn.R
 import com.bangkit.hijalearn.data.local.database.Modul
-import com.bangkit.hijalearn.model.Module
-import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 
 
@@ -42,7 +39,6 @@ fun AllModulItem(
     context: Context,
     modifier: Modifier = Modifier
 ) {
-    val image = context.resources.getIdentifier("modul_1_alif.png", "drawable", context.packageName)
     Card(
         modifier = modifier
             .fillMaxWidth()

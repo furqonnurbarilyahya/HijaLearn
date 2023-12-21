@@ -10,8 +10,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ListMateriViewModel(private val repository: MainRepository): ViewModel() {
-    fun countMateriSelesaiByModul(modulId: Int) = repository.countMateriSelesaiByModul(modulId)
-
     // UiState list materi
     private val _listMateriState: MutableStateFlow<UiState<List<Materi>>> = MutableStateFlow(UiState.Loading)
     val listMateriState: StateFlow<UiState<List<Materi>>> get() = _listMateriState
