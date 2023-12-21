@@ -10,9 +10,13 @@
 - **Al Quran and Translation**, the app provide Quran verses and it's translations
 
 ## Requirements
+- Android Studio: 2022.3.1 (Giraffe)
 - Minimum SDK: 28
 - Target SDK: 33
 - JDK: 17
+- Kotlin: 1.8.10
+- Android Gradle Plugin: 8.1.1
+- Gradle: 8.0
 
 
 ## Dependencies
@@ -24,3 +28,11 @@
 - [Ok Http 3](https://square.github.io/okhttp/)
 - [Android Jetpack](https://developer.android.com/jetpack/getting-started)
 
+## Getting Started
+1. Clone this repository and open it on Android Studio:
+   ```
+   https://github.com/furqonnurbarilyahya/HijaLearn.git
+   ```
+2. Follow the official Firebase documentation to add Firebase Authentication in your app:
+   - [Add Firebase](https://firebase.google.com/docs/android/setup?hl=en&authuser=0#add-config-file)
+3. Build and run the app on emulator or a real device
