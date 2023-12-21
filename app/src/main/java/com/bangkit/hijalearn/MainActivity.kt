@@ -121,7 +121,13 @@ fun HijaLearnApp(
                         )
                     },
                     navigateToAllMateri = {
-                        navController.navigate(Screen.AllMateri.route)
+                        navController.navigate(Screen.AllMateri.route){
+                            popUpTo(navController.graph.findStartDestination().id){
+                                saveState = true
+                            }
+                            restoreState = true
+                            launchSingleTop = true
+                        }
                     }
                 )
             }
