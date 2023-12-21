@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,47 +46,67 @@ import androidx.compose.ui.unit.sp
 import com.bangkit.hijalearn.R
 import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.bangkit.hijalearn.MainViewModelFactory
 import com.bangkit.hijalearn.di.Injection
 import com.bangkit.hijalearn.model.User
+import com.bangkit.hijalearn.navigation.Screen
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 @Composable
 fun ProfileScreen(
-    context: Context,
-    viewModel: ProfileViewModel = viewModel(
-        factory = MainViewModelFactory(Injection.provideMainRepository(context))
-    )
+    navController: NavController
 ) {
-    val user = viewModel.getSession().collectAsState(initial = User("", "", "", "", false))
+    val user = Firebase.auth.currentUser
     Column (
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.primary),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(40.dp))
-        Image(
-            painter = painterResource(id = R.drawable.icon_category_espresso),
-            contentDescription = null,
-            modifier = Modifier
-                .width(120.dp)
-                .height(120.dp)
-                .padding(vertical = 10.dp)
-        )
-        Text(
-            text = user.value.username,
-            color = Color.White,
-            fontSize = 26.sp,
-            fontWeight = FontWeight.SemiBold
-        )
-        Spacer(modifier = Modifier.height(30.dp))
+        Box {
+            Image(
+                painter = painterResource(id = R.drawable.bg_profile),
+                contentDescription = null
+            )
+            Column (horizontalAlignment = Alignment.CenterHorizontally){
+                Row (
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 30.dp),
+                ) {
+                    AsyncImage(
+                        modifier = Modifier
+                            .width(120.dp)
+                            .height(120.dp)
+                            .clip(shape = RoundedCornerShape(30.dp)),
+                        model = if (user?.photoUrl == null) "https://assets-a1.kompasiana.com/items/album/2021/03/24/blank-profile-picture-973460-1280-605aadc08ede4874e1153a12.png?t=o&v=1200" else user.photoUrl,
+                        contentDescription = null
+                    )
+                }
+                Spacer(modifier = Modifier.height(15.dp))
+                Row (
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp)
+                ) {
+                    Text(
+                        text = user?.displayName!!,
+                        color = Color.White,
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        }
         Column (
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    color = colorResource(id = R.color.white2),
-                    shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp)
-                )
+                .background(color = colorResource(id = R.color.white2))
                 .clip(shape = RoundedCornerShape(20.dp))
         ) {
             Spacer(modifier = Modifier.height(20.dp))
@@ -102,12 +124,14 @@ fun ProfileScreen(
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { }
+                        .clickable {
+                            navController.navigate(Screen.DetailProfile.route)
+                        }
                         .padding(horizontal = 20.dp, vertical = 20.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Profil",
+                        text = "Detail Profil",
                         fontSize = 16.sp
                     )
                     Text(text = ">")
@@ -116,7 +140,9 @@ fun ProfileScreen(
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { }
+                        .clickable {
+                            navController.navigate(Screen.MyAccount.route)
+                        }
                         .padding(horizontal = 20.dp, vertical = 20.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {

@@ -20,8 +20,9 @@ object Injection {
         val userPref = UserPreference.getInstance(context.dataStore)
         val apiService = ApiConfig.getAuthApiService()
         val alQuranApiService = ApiConfig.getAlquranApiService()
+        val doaApiService = ApiConfig.getDoaApiService()
         val moduleDatabase = ModuleDatabase.getDatabase(context, CoroutineScope(SupervisorJob()))
-        return MainRepository.getInstance(apiService,userPref,moduleDatabase, alQuranApiService)
+        return MainRepository.getInstance(apiService,userPref,moduleDatabase, alQuranApiService, doaApiService)
     }
 
 

@@ -37,7 +37,7 @@ import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
 
 
 @Composable
-fun ModulItem(
+fun AllModulItem(
     module: Modul,
     context: Context,
     modifier: Modifier = Modifier
@@ -45,7 +45,7 @@ fun ModulItem(
     val image = context.resources.getIdentifier("modul_1_alif.png", "drawable", context.packageName)
     Card(
         modifier = modifier
-            .width(200.dp)
+            .fillMaxWidth()
             .padding(bottom = 10.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -60,21 +60,24 @@ fun ModulItem(
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp),
+                    .height(200.dp),
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.height(10.dp))
             Column (modifier = Modifier.padding(horizontal = 8.dp)) {
                 Text(
+                    fontSize = 22.sp,
                     text = module.namaModul,
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold
-                    ),
+                        fontWeight = FontWeight.Bold
+                    )
                 )
+                Spacer(modifier = Modifier.height(5.dp))
                 Text(
+                    modifier = Modifier.padding(bottom = 10.dp),
                     text = module.deskripsi,
-                    fontSize = 12.sp,
-                    lineHeight = 16.sp
+                    fontSize = 18.sp,
+                    lineHeight = 24.sp
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))

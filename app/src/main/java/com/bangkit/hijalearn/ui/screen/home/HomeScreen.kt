@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -35,6 +36,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -42,15 +44,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.bangkit.hijalearn.MainViewModelFactory
 import com.bangkit.hijalearn.R
 import com.bangkit.hijalearn.data.UiState
@@ -91,48 +96,53 @@ fun HomeScreen (
             .verticalScroll(rememberScrollState())
     ) {
         Card (
-            modifier = Modifier
-                .height(180.dp),
-            shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primary)
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(bottomEnd = 24.dp, bottomStart = 24.dp)
         ) {
-            Column {
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp, start = 16.dp, end = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+            Box(modifier = Modifier) {
+                Image(
+                    painter = painterResource(id = R.drawable.bg_home),
+                    contentDescription = null,
+                )
+                Column(
+                    modifier = Modifier.padding(start = 16.dp, top = 18.dp, end = 16.dp)
                 ) {
-                    Image(
-                        modifier = Modifier
-                            .height(45.dp)
-                            .width(45.dp),
-                        painter = painterResource(R.drawable.icon_category_espresso),
-                        contentDescription = null,
-                    )
-                    Spacer(modifier = Modifier.width(290.dp))
-                    IconButton(
-                        onClick = { /*TODO*/ },
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.Notifications,
+                        AsyncImage(
+                            modifier = Modifier
+                                .width(45.dp)
+                                .height(45.dp)
+                                .clip(RoundedCornerShape(5.dp)),
+                            model = if (user?.photoUrl == null) "https://assets-a1.kompasiana.com/items/album/2021/03/24/blank-profile-picture-973460-1280-605aadc08ede4874e1153a12.png?t=o&v=1200" else user.photoUrl,
                             contentDescription = null
                         )
+                        IconButton(
+                            onClick = {  },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Notifications,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                        }
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Assalamu'alaykum " + user?.displayName,
+                        fontSize = 16.sp,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(15.dp))
+                    Text(
+                        text = "Apakah sudah siap untuk belajar?",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp,
+                        color = Color.White
+                    )
                 }
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "Assalamu'alaykum " + user?.displayName
-                )
-                Spacer(modifier = Modifier.height(7.dp))
-                Text(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "Ayo mulai perjalanan Belajarmu",
-                    fontWeight = SemiBold,
-                    fontSize = 20.sp
-                )
             }
         }
         Spacer(modifier = Modifier.height(15.dp))
@@ -198,15 +208,21 @@ fun HomeScreen (
             }
         }
         Spacer(modifier = Modifier.height(15.dp))
-        Row (modifier = Modifier.fillMaxWidth()){
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ){
             SectionText(title = "Daftar Modul")
-            Spacer(modifier = Modifier.width(100.dp))
-            Text(
-                modifier = Modifier.padding(top = 17.dp),
-                text = stringResource(R.string.view_all),
-                fontSize = 14.sp,
-                fontWeight = SemiBold
-            )
+            TextButton(onClick = {}) {
+                Text(
+                    modifier = Modifier,
+                    text = stringResource(R.string.view_all),
+                    fontSize = 14.sp,
+                    fontWeight = SemiBold
+                )
+            }
         }
         Spacer(modifier = Modifier.height(15.dp))
         viewModel.allModulState.collectAsState(initial = UiState.Loading).value.let {

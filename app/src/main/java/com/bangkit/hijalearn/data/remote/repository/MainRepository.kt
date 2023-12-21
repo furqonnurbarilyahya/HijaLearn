@@ -13,6 +13,8 @@ import com.bangkit.hijalearn.data.remote.response.PredictionResponse
 import com.bangkit.hijalearn.data.remote.response.ProgressResponse
 import com.bangkit.hijalearn.data.remote.response.SingleModuleProgressResponse
 import com.bangkit.hijalearn.data.remote.retrofit.ApiService
+import com.bangkit.hijalearn.model.DoaResponseItem
+import com.bangkit.hijalearn.model.ListSurahResponse
 import com.bangkit.hijalearn.model.ListSurahResponseItem
 import com.bangkit.hijalearn.model.SurahResponse
 import com.bangkit.hijalearn.model.SurahResponseItem
@@ -26,6 +28,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -34,7 +37,8 @@ class MainRepository(
     private val apiService: ApiService,
     private val userPreference: UserPreference,
     private val moduleDatabase: ModuleDatabase,
-    private val alQuranApiService: ApiService
+    private val alQuranApiService: ApiService,
+    private val doaApiService: ApiService
 ) {
     private val moduleDao = moduleDatabase.moduleDao()
 
@@ -161,6 +165,17 @@ class MainRepository(
         }
         Log.d("SURAH", "${_listSurahState.value.toString()}")
     }
+
+    private val listSurah = mutableListOf<ListSurahResponseItem>()
+
+    fun getSurah(): List<ListSurahResponseItem> {
+        return listSurah
+    }
+    fun searchSurah(query: String): List<ListSurahResponseItem> {
+        return listSurah.filter {
+            it.nama.contains(query, ignoreCase = true)
+        }
+    }
     
     //UIState List Ayat per Surah
     private val _listAyatState: MutableStateFlow<UiState<List<SurahResponseItem>>> = MutableStateFlow(UiState.Loading)
@@ -173,6 +188,19 @@ class MainRepository(
             _listAyatState.value = UiState.Error(e.message.toString())
         }
         Log.d("AYAT", "${_listAyatState.value.toString()}")
+    }
+
+    //UiState List Doa
+    private val _listDoaState: MutableStateFlow<UiState<List<DoaResponseItem>>> = MutableStateFlow(UiState.Loading)
+
+    val listDoaState: StateFlow<UiState<List<DoaResponseItem>>> get() = _listDoaState
+
+    suspend fun getDoa() {
+        try {
+            _listDoaState.value = UiState.Success(doaApiService.getDoa())
+        } catch (e: Exception) {
+            _listDoaState.value = UiState.Error(e.message.toString())
+        }
     }
 
     data class TesModulProgress(
@@ -193,11 +221,12 @@ class MainRepository(
             apiService: ApiService,
             userPreference: UserPreference,
             moduleDatabase: ModuleDatabase,
-            alQuranApiService: ApiService
+            alQuranApiService: ApiService,
+            doaApiService: ApiService
 
         ): MainRepository =
             instance ?: synchronized(this) {
-                instance ?: MainRepository(apiService, userPreference,moduleDatabase, alQuranApiService)
+                instance ?: MainRepository(apiService, userPreference,moduleDatabase, alQuranApiService, doaApiService)
             }.also { instance = it }
     }
 }

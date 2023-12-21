@@ -38,10 +38,13 @@ import com.bangkit.hijalearn.model.BottomBarItem
 import com.bangkit.hijalearn.navigation.Screen
 import com.bangkit.hijalearn.ui.screen.allmaterial.AllMaterialScreen
 import com.bangkit.hijalearn.ui.screen.alquran.AlQuranScreen
+import com.bangkit.hijalearn.ui.screen.detail_profile.DetailProfileScreen
+import com.bangkit.hijalearn.ui.screen.doa.DoaScreen
 import com.bangkit.hijalearn.ui.screen.home.HomeScreen
 import com.bangkit.hijalearn.ui.screen.introduction.IntroductionScreen
 import com.bangkit.hijalearn.ui.screen.list_materi.ListMateriScreen
 import com.bangkit.hijalearn.ui.screen.materi.MateriScreen
+import com.bangkit.hijalearn.ui.screen.my_acccount.MyAccountScreen
 import com.bangkit.hijalearn.ui.screen.profile.ProfileScreen
 import com.bangkit.hijalearn.ui.screen.surah.SurahScreen
 import com.bangkit.hijalearn.ui.theme.HijaLearnTheme
@@ -68,9 +71,13 @@ fun HijaLearnApp(
     val currentRoute = navBackStackEntry?.destination?.route
     Scaffold(
         bottomBar = {
-            if (currentRoute != Screen.Introduction.route &&
+            if (
+                currentRoute != Screen.Introduction.route &&
                 currentRoute != Screen.ToListMateri.route &&
-                currentRoute != Screen.Materi.route) {
+                currentRoute != Screen.Materi.route &&
+                currentRoute != Screen.Surah.route &&
+                currentRoute != Screen.DetailProfile.route &&
+                currentRoute != Screen.MyAccount.route) {
                 BottomBar(navController)
             }
         }
@@ -187,14 +194,30 @@ fun HijaLearnApp(
                 )
             }
             composable(Screen.Profile.route) {
-                ProfileScreen(context)
+                ProfileScreen(navController)
+            }
+            composable(Screen.DetailProfile.route) {
+                DetailProfileScreen(
+                    onClickBack = {
+                        navController.navigateUp()
+                    }
+                )
+            }
+            composable(Screen.MyAccount.route) {
+                MyAccountScreen(
+                    onClickBack = {
+                        navController.navigateUp()
+                    }
+                )
             }
             composable(Screen.AlQuran.route) {
                 AlQuranScreen(
                     context,
-                    navigateToSurah = { id ->
+                    navigateToSurah = { idSurah, surahName, ayat ->
                         navController.navigate(Screen.Surah.createRoute(
-                            id
+                            idSurah,
+                            surahName,
+                            ayat
                         ))
                     }
                 )
@@ -202,20 +225,29 @@ fun HijaLearnApp(
             composable(
                 route = Screen.Surah.route,
                 arguments = listOf(
-                    navArgument("id") { type = NavType.StringType }
+                    navArgument("surahId") { type = NavType.StringType },
+                    navArgument("surahName") { type = NavType.StringType },
+                    navArgument("ayat") { type = NavType.IntType }
                 )
             ) {
-                val id = it.arguments?.getString("id")
+                val surahId = it.arguments?.getString("surahId")
+                val surahName = it.arguments?.getString("surahName")
+                val ayat = it.arguments?.getInt("ayat")
                 SurahScreen(
                     context = context,
-                    id = id!!,
+                    surahId = surahId!!,
+                    surahName = surahName!!,
+                    ayat = ayat!!,
                     onClickBack = {
                         navController.navigateUp()
                     }
                 )
             }
             composable(Screen.AllMateri.route) {
-                AllMaterialScreen()
+                AllMaterialScreen(context)
+            }
+            composable(Screen.Doa.route) {
+                DoaScreen(context)
             }
         }
     }
@@ -249,10 +281,15 @@ fun BottomBar(
                 screen = Screen.AlQuran
             ),
             BottomBarItem(
+                title = "Do'a",
+                icon = Icons.Outlined.Book,
+                screen = Screen.Doa
+            ),
+            BottomBarItem(
                 title = "Profil",
                 icon = Icons.Outlined.Person,
                 screen = Screen.Profile
-            ),
+            )
         )
         navigationItems.map {
             NavigationBarItem(
