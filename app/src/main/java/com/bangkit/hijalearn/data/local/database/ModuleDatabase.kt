@@ -28,21 +28,6 @@ abstract class ModuleDatabase : RoomDatabase() {
                     )
                         .fallbackToDestructiveMigration()
                         .createFromAsset("module_database.db")
-//                        .addCallback(object : Callback() {
-//                            override fun onCreate(db: SupportSQLiteDatabase) {
-//                                super.onCreate(db)
-//                                Log.d("Database", "Database created. Inserting initial data...")
-//                                INSTANCE?.let { database ->
-//                                    applicationScope.launch {
-//                                        val moduleDao = database.moduleDao()
-//                                        moduleDao.insertModul(TempInitialDataSource.getModul())
-//                                        moduleDao.insertPendahuluan(TempInitialDataSource.getPendahuluan())
-//                                        moduleDao.insertMateri(TempInitialDataSource.getMateri())
-//                                        Log.d("Database", "Finish")
-//                                    }
-//                                }
-//                            }
-//                        })
                         .build()
                 }
             }

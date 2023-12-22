@@ -19,23 +19,11 @@ interface ModuleDao {
     @Query("SELECT * FROM modul")
     suspend fun getAllModul() : List<Modul>
 
-//    @Query(
-//        "SELECT * FROM pendahuluan "+
-//        "INNER JOIN modul ON pendahuluan.modulId = modul.modulId " +
-//        "WHERE pendahuluan.modulId = :modulId"
-//    )
+
     @Query(
         "SELECT * FROM pendahuluan WHERE modulId = :modulId"
     )
     suspend fun getPendahuluanWithModulById(modulId: Int): Pendahuluan
-
-//    @Query(
-//        "SELECT * " +
-//        "FROM Materi " +
-//        "INNER JOIN Modul ON Materi.modulId = Modul.modulId " +
-//        "WHERE Materi.modulId = :modulId"
-//    )
-//    suspend fun getAllMateriWithModuleById(modulId: Int): List<MateriWithModul>
 
     @Query("SELECT * FROM materi WHERE modulId = :modulId")
     suspend fun getListMateriByModulId(modulId: Int): List<Materi>

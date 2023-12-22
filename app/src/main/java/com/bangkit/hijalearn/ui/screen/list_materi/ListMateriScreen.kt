@@ -165,11 +165,3 @@ fun ListMateriScreen(
     }
 }
 
-
-//@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_4)
-//@Composable
-//fun IntroductionScreenPreview() {
-//    HijaLearnTheme {
-//        ListMateriScreen(1,onClickBack = {})
-//    }
-//}

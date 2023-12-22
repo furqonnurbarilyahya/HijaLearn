@@ -78,11 +78,8 @@ fun HomeScreen (
     )
 ) {
     val user = Firebase.auth.currentUser
-    val namaModulState = remember {
-        mutableStateOf("")
-    }
-    val descModulState = remember {
-        mutableStateOf("")
+    val modul: MutableState<List<Modul?>> = remember {
+        mutableStateOf(emptyList())
     }
     Column (
         modifier = Modifier
@@ -174,7 +171,9 @@ fun HomeScreen (
                     val data = it.data
                     val module = data.module
                     val progress = module.find { it.moduleId == data.lastModule }
-                    CardProgressContent(data = data, progress = progress!!, namaModulState = namaModulState, descModulState = descModulState)
+                    val namaModul = modul.value.find { it?.modulId == data.lastModule }?.namaModul
+                    val descModul = modul.value.find { it?.modulId == data.lastModule }?.deskripsi
+                    CardProgressContent(data = data, progress = progress!!, namaModul = namaModul?:"", descModul = descModul?:"")
                 }
                 is UiState.Error -> {
                     Card (
@@ -233,15 +232,16 @@ fun HomeScreen (
                     viewModel.getAllModul()
                 }
                 is UiState.Success -> {
-                    namaModulState.value = it.data.first().namaModul
-                    descModulState.value = it.data.first().deskripsi
+                    modul.value = it.data
                     ListModul(
                         context = context,
                         listModule = it.data,
                         navigateToIntroduction = navigateToIntroduction)
                 }
                 is UiState.Error -> {
-                    Box(modifier = Modifier.height(200.dp).fillMaxWidth()) {
+                    Box(modifier = Modifier
+                        .height(200.dp)
+                        .fillMaxWidth()) {
                         Column(
                             modifier = Modifier.align(Alignment.Center),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -287,8 +287,8 @@ fun ListModul(
 fun CardProgressContent(
     data: ProgressResponse,
     progress: ModuleItem,
-    namaModulState: MutableState<String>,
-    descModulState: MutableState<String>
+    namaModul: String,
+    descModul: String
 ) {
     Card (
         modifier = Modifier
@@ -303,8 +303,6 @@ fun CardProgressContent(
         )
     ) {
         val percent = ((progress.subModuleDone.toDouble() / progress.totalSubModule.toDouble()) * 100).toInt()
-        val namaModul = namaModulState.value
-        val descModul = descModulState.value
         Row(
             modifier = Modifier
                 .fillMaxSize(),

@@ -70,25 +70,6 @@ fun MateriItem(
                 modifier = Modifier
                     .size(55.dp)
             )
-//            Image(
-//                painter = if (accesable) {
-//                    painterResource(id = materi.gambar)
-//                } else {
-//                       painterResource(id = R.drawable.ic_lock)
-//                }
-//                ,
-//                contentDescription = null,
-//                modifier = Modifier
-//                    .size(55.dp)
-//            )
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun MateriItemPreview() {
-//    HijaLearnTheme {
-//        MateriItem(materi = dummyMateri[0], false)
-//    }
-//}
